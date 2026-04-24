@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -57,15 +59,14 @@ function WritePageInner() {
   const removeTag = (tag: string) => setTags(tags.filter((t) => t !== tag));
 
   const generateSlug = (title: string) => {
-    return (
-      title
-        .toLowerCase()
-        .replace(/[^a-zA-Z0-9가-힣\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .slice(0, 60) +
-      '-' +
-      Date.now()
-    );
+    const base = title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 40);
+    return (base || 'post') + '-' + Date.now();
   };
 
   const generateExcerpt = (content: string, type: string) => {

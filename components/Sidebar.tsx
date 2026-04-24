@@ -173,7 +173,7 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
           posts.map((post, i) => (
             <Link
               key={post.id}
-              href={`/posts/${post.slug}`}
+              href={`/posts/${encodeURIComponent(post.slug)}`}
               style={{
                 display: 'block',
                 padding: '11px 16px',

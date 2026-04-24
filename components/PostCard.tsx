@@ -50,7 +50,7 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
         (e.currentTarget as HTMLElement).style.boxShadow = 'none';
       }}
     >
-      <Link href={`/posts/${post.slug}`} style={{ textDecoration: 'none' }}>
+      <Link href={`/posts/${encodeURIComponent(post.slug)}`} style={{ textDecoration: 'none' }}>
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">

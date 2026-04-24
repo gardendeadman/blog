@@ -16,10 +16,13 @@ export default async function PostPage({ params }: { params: { slug: string } })
   const isLoggedIn = !!user;
   const blogName = await getBlogName();
 
+  // URL 인코딩된 slug 디코딩 (한글 slug 등 대비)
+  const rawSlug = decodeURIComponent(params.slug);
+
   const { data: post } = await supabase
     .from('posts')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', rawSlug)
     .single();
 
   if (!post) notFound();
