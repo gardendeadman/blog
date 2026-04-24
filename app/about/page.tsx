@@ -10,7 +10,7 @@ export default async function AboutPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = !!user;
-  const { blogName, bio } = await getBlogSettings();
+  const { blogName, bio, profileImage } = await getBlogSettings();
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
@@ -26,10 +26,14 @@ export default async function AboutPage() {
           <div style={{
             width: '80px', height: '80px', borderRadius: '50%',
             background: 'var(--accent-subtle)', border: '2px solid var(--accent)',
+            overflow: 'hidden',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            marginBottom: '24px', fontSize: '2rem',
+            marginBottom: '24px', fontSize: '2rem', flexShrink: 0,
           }}>
-            ✍️
+            {profileImage
+              ? <img src={profileImage} alt="프로필" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : '✍️'
+            }
           </div>
 
           {/* 블로그 이름 */}

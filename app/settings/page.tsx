@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client';
 import { applyAccent } from '@/components/ThemeColorInjector';
 import {
   Download, Upload, Trash2, AlertTriangle, CheckCircle,
-  Loader2, ArrowLeft, Save, Palette,
+  Loader2, ArrowLeft, Save, Palette, UserCircle2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -36,6 +36,11 @@ export default function SettingsPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; msg: string } | null>(null);
+
+  // 프로필 이미지
+  const [profileImage, setProfileImage] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
+  const profileInputRef = useRef<HTMLInputElement>(null);
 
   // 블로그 이름
   const [blogName, setBlogName] = useState('블로그');
@@ -65,19 +70,21 @@ export default function SettingsPage() {
 
       const { data } = await supabase
         .from('blog_settings')
-        .select('blog_name, accent_color, bio')
+        .select('blog_name, accent_color, bio, profile_image')
         .eq('user_id', user.id)
         .single();
 
       const name = data?.blog_name || '블로그';
       const color = data?.accent_color || '#d4622a';
       const bioVal = data?.bio || '';
+      const profileVal = data?.profile_image || '';
       setBlogName(name);
       setBlogNameInput(name);
       setAccentColor(color);
       setAccentInput(color);
       setBio(bioVal);
       setBioInput(bioVal);
+      setProfileImage(profileVal);
 
       setLoading(false);
     });
@@ -100,6 +107,54 @@ export default function SettingsPage() {
       await supabase.from('blog_settings')
         .insert({ user_id: user.id, ...patch });
     }
+  };
+
+  // ── 프로필 이미지 업로드 ────────────────────────────────
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const dataUrl = ev.target?.result as string;
+      // 256×256 으로 리사이즈
+      const img = new window.Image();
+      img.onload = async () => {
+        const size = 256;
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d')!;
+        // 정사각형 크롭 후 리사이즈
+        const min = Math.min(img.width, img.height);
+        const sx = (img.width - min) / 2;
+        const sy = (img.height - min) / 2;
+        ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+        const resized = canvas.toDataURL('image/png');
+        setSavingProfile(true);
+        try {
+          await upsertSettings({ profile_image: resized });
+          setProfileImage(resized);
+          showStatus('success', '프로필 이미지가 저장됐습니다. 파비콘은 페이지 새로고침 후 반영됩니다.');
+        } catch (e: any) {
+          showStatus('error', '저장 실패: ' + e.message);
+        }
+        setSavingProfile(false);
+      };
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleRemoveProfileImage = async () => {
+    setSavingProfile(true);
+    try {
+      await upsertSettings({ profile_image: '' });
+      setProfileImage('');
+      showStatus('success', '프로필 이미지가 삭제됐습니다.');
+    } catch (e: any) {
+      showStatus('error', '삭제 실패: ' + e.message);
+    }
+    setSavingProfile(false);
   };
 
   // ── 블로그 이름 저장 ───────────────────────────────────
@@ -306,6 +361,59 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* 프로필 이미지 */}
+        <div style={card}>
+          <h2 style={sectionTitle}>🖼️ 프로필 이미지</h2>
+          <p style={sectionDesc}>
+            소개 페이지 아바타와 브라우저 파비콘에 사용됩니다. 정사각형 이미지를 권장합니다.
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            {/* 미리보기 */}
+            <div style={{
+              width: '80px', height: '80px', borderRadius: '50%',
+              background: 'var(--accent-subtle)', border: '2px solid var(--accent)',
+              overflow: 'hidden', flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              {profileImage ? (
+                <img src={profileImage} alt="프로필" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <UserCircle2 size={40} style={{ color: 'var(--accent)', opacity: 0.5 }} />
+              )}
+            </div>
+            {/* 버튼들 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <input
+                ref={profileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleProfileImageChange}
+              />
+              <button
+                onClick={() => profileInputRef.current?.click()}
+                disabled={savingProfile}
+                style={{ ...btn('primary'), opacity: savingProfile ? 0.5 : 1 }}
+              >
+                {savingProfile ? <Loader2 size={14} /> : <Upload size={14} />}
+                {savingProfile ? '저장 중...' : '이미지 선택'}
+              </button>
+              {profileImage && (
+                <button
+                  onClick={handleRemoveProfileImage}
+                  disabled={savingProfile}
+                  style={btn('danger')}
+                >
+                  <Trash2 size={14} /> 삭제
+                </button>
+              )}
+            </div>
+          </div>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '12px' }}>
+            💡 파비콘은 저장 후 브라우저 새로고침(Ctrl+Shift+R) 시 반영됩니다.
+          </p>
         </div>
 
         {/* 블로그 이름 */}

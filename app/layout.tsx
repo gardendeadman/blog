@@ -5,25 +5,38 @@ import { getBlogSettings } from '@/lib/blogSettings';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: {
-    default: '블로그',
-    template: '%s | 블로그',
-  },
-  description: '개인 블로그',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { blogName, profileImage } = await getBlogSettings();
+
+  const icons: Metadata['icons'] = profileImage
+    ? { icon: profileImage, shortcut: profileImage, apple: profileImage }
+    : undefined;
+
+  return {
+    title: {
+      default: blogName,
+      template: `%s | ${blogName}`,
+    },
+    description: `${blogName} 블로그`,
+    ...(icons && { icons }),
+  };
+}
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { accentColor } = await getBlogSettings();
+  const { accentColor, blogName, profileImage } = await getBlogSettings();
 
   return (
     <html lang="ko" suppressHydrationWarning>
       <body>
-        <ClientProviders accentColor={accentColor}>
+        <ClientProviders
+          accentColor={accentColor}
+          blogName={blogName}
+          profileImage={profileImage}
+        >
           {children}
         </ClientProviders>
       </body>

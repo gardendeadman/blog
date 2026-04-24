@@ -3,11 +3,13 @@ import { createClient } from '@/lib/supabase/server';
 export const DEFAULT_BLOG_NAME = '블로그';
 export const DEFAULT_ACCENT = '#d4622a';
 export const DEFAULT_BIO = '';
+export const DEFAULT_PROFILE_IMAGE = '';
 
 export interface BlogSettings {
   blogName: string;
   accentColor: string;
   bio: string;
+  profileImage: string;
 }
 
 export async function getBlogSettings(): Promise<BlogSettings> {
@@ -15,16 +17,22 @@ export async function getBlogSettings(): Promise<BlogSettings> {
     const supabase = createClient();
     const { data } = await supabase
       .from('blog_settings')
-      .select('blog_name, accent_color, bio')
+      .select('blog_name, accent_color, bio, profile_image')
       .limit(1)
       .single();
     return {
-      blogName: data?.blog_name || DEFAULT_BLOG_NAME,
-      accentColor: data?.accent_color || DEFAULT_ACCENT,
-      bio: data?.bio || DEFAULT_BIO,
+      blogName:     data?.blog_name     || DEFAULT_BLOG_NAME,
+      accentColor:  data?.accent_color  || DEFAULT_ACCENT,
+      bio:          data?.bio           || DEFAULT_BIO,
+      profileImage: data?.profile_image || DEFAULT_PROFILE_IMAGE,
     };
   } catch {
-    return { blogName: DEFAULT_BLOG_NAME, accentColor: DEFAULT_ACCENT, bio: DEFAULT_BIO };
+    return {
+      blogName: DEFAULT_BLOG_NAME,
+      accentColor: DEFAULT_ACCENT,
+      bio: DEFAULT_BIO,
+      profileImage: DEFAULT_PROFILE_IMAGE,
+    };
   }
 }
 
