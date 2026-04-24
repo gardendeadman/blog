@@ -64,24 +64,7 @@ export default async function AboutPage() {
             </div>
           )}
 
-          {/* 기술 스택 */}
-          <div style={{
-            marginTop: '40px', paddingTop: '28px',
-            borderTop: '1px solid var(--border)',
-            display: 'flex', gap: '12px', flexWrap: 'wrap',
-          }}>
-            {['Next.js 14', 'Supabase', 'Vercel', 'TipTap', 'TypeScript'].map((tech) => (
-              <span key={tech} style={{
-                fontSize: '0.8rem', fontWeight: 600,
-                color: 'var(--text-secondary)',
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border)',
-                padding: '4px 12px', borderRadius: '20px',
-              }}>
-                {tech}
-              </span>
-            ))}
-          </div>
+
         </div>
       </main>
     </div>
