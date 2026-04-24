@@ -42,6 +42,11 @@ export default function SettingsPage() {
   const [blogNameInput, setBlogNameInput] = useState('블로그');
   const [savingName, setSavingName] = useState(false);
 
+  // 소개글
+  const [bio, setBio] = useState('');
+  const [bioInput, setBioInput] = useState('');
+  const [savingBio, setSavingBio] = useState(false);
+
   // 테마 컬러
   const [accentColor, setAccentColor] = useState('#d4622a');
   const [accentInput, setAccentInput] = useState('#d4622a');
@@ -60,16 +65,19 @@ export default function SettingsPage() {
 
       const { data } = await supabase
         .from('blog_settings')
-        .select('blog_name, accent_color')
+        .select('blog_name, accent_color, bio')
         .eq('user_id', user.id)
         .single();
 
       const name = data?.blog_name || '블로그';
       const color = data?.accent_color || '#d4622a';
+      const bioVal = data?.bio || '';
       setBlogName(name);
       setBlogNameInput(name);
       setAccentColor(color);
       setAccentInput(color);
+      setBio(bioVal);
+      setBioInput(bioVal);
 
       setLoading(false);
     });
@@ -107,6 +115,19 @@ export default function SettingsPage() {
       showStatus('error', '저장 실패: ' + e.message);
     }
     setSavingName(false);
+  };
+
+  // ── 소개글 저장 ───────────────────────────────────────
+  const handleSaveBio = async () => {
+    setSavingBio(true);
+    try {
+      await upsertSettings({ bio: bioInput });
+      setBio(bioInput);
+      showStatus('success', '소개글이 저장됐습니다.');
+    } catch (e: any) {
+      showStatus('error', '저장 실패: ' + e.message);
+    }
+    setSavingBio(false);
   };
 
   // ── 테마 컬러 저장 ─────────────────────────────────────
@@ -311,6 +332,40 @@ export default function SettingsPage() {
             </button>
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>{blogNameInput.length} / 40자</div>
+        </div>
+
+        {/* 소개글 */}
+        <div style={card}>
+          <h2 style={sectionTitle}>📝 소개글</h2>
+          <p style={sectionDesc}>
+            소개 페이지에 표시됩니다. 마크다운을 지원합니다.
+          </p>
+          <textarea
+            value={bioInput}
+            onChange={(e) => setBioInput(e.target.value)}
+            placeholder={"안녕하세요! 반갑습니다.\n\n이 블로그는 ..."}
+            rows={6}
+            style={{
+              ...inputStyle,
+              resize: 'vertical',
+              lineHeight: 1.7,
+              fontFamily: 'var(--font-pretendard)',
+              marginBottom: '12px',
+            }}
+          />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              {bioInput.length}자
+            </span>
+            <button
+              onClick={handleSaveBio}
+              disabled={savingBio || bioInput === bio}
+              style={{ ...btn('primary'), opacity: (savingBio || bioInput === bio) ? 0.5 : 1, cursor: (savingBio || bioInput === bio) ? 'not-allowed' : 'pointer' }}
+            >
+              {savingBio ? <Loader2 size={14} /> : <Save size={14} />}
+              {savingBio ? '저장 중...' : '저장'}
+            </button>
+          </div>
         </div>
 
         {/* 테마 컬러 */}
