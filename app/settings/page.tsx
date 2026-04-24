@@ -11,6 +11,10 @@ import {
   Loader2, ArrowLeft, Save, Palette, UserCircle2,
 } from 'lucide-react';
 import Link from 'next/link';
+import nextDynamic from 'next/dynamic';
+
+const MDEditor = nextDynamic(() => import('@uiw/react-md-editor'), { ssr: false });
+import { formatKST } from '@/lib/formatDate';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
@@ -324,7 +328,7 @@ export default function SettingsPage() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       {/* Header */}
       <header style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', position: 'sticky', top: 0, zIndex: 50 }}>
-        <div className="max-w-3xl mx-auto px-6 h-16 flex items-center gap-4">
+        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center gap-4">
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: 'var(--text-muted)', textDecoration: 'none' }}>
             <ArrowLeft size={14} /> 돌아가기
           </Link>
@@ -333,7 +337,7 @@ export default function SettingsPage() {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-6 py-10">
+      <main className="max-w-4xl mx-auto px-6 py-10">
 
         {/* 상태 메시지 */}
         {status && (
@@ -357,7 +361,7 @@ export default function SettingsPage() {
             <div>
               <div style={{ fontWeight: 600, color: 'var(--text)', marginBottom: '2px' }}>{user?.email}</div>
               <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                가입일: {user?.created_at ? format(new Date(user.created_at), 'yyyy년 M월 d일', { locale: ko }) : '-'}
+                가입일: {user?.created_at ? formatKST(user.created_at, 'yyyy년 M월 d일') : '-'}
               </div>
             </div>
           </div>
@@ -443,25 +447,30 @@ export default function SettingsPage() {
         </div>
 
         {/* 소개글 */}
-        <div style={card}>
-          <h2 style={sectionTitle}>📝 소개글</h2>
-          <p style={sectionDesc}>
-            소개 페이지에 표시됩니다. 마크다운을 지원합니다.
-          </p>
-          <textarea
-            value={bioInput}
-            onChange={(e) => setBioInput(e.target.value)}
-            placeholder={"안녕하세요! 반갑습니다.\n\n이 블로그는 ..."}
-            rows={6}
-            style={{
-              ...inputStyle,
-              resize: 'vertical',
-              lineHeight: 1.7,
-              fontFamily: 'var(--font-pretendard)',
-              marginBottom: '12px',
-            }}
-          />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ ...card, padding: 0, overflow: 'hidden' }}>
+          {/* 헤더 */}
+          <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--border)' }}>
+            <h2 style={sectionTitle}>📝 소개글</h2>
+            <p style={{ ...sectionDesc, marginBottom: 0 }}>
+              소개 페이지에 표시됩니다. 마크다운 문법을 사용할 수 있습니다.
+            </p>
+          </div>
+          {/* 마크다운 에디터 — 전체 너비 */}
+          <div data-color-mode="auto" style={{ width: '100%' }}>
+            <MDEditor
+              value={bioInput}
+              onChange={(v) => setBioInput(v || '')}
+              height={360}
+              preview="live"
+              style={{ width: '100%', borderRadius: 0, border: 'none' }}
+            />
+          </div>
+          {/* 푸터 */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '12px 20px', borderTop: '1px solid var(--border)',
+            background: 'var(--bg-secondary)',
+          }}>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
               {bioInput.length}자
             </span>

@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { formatKST } from '@/lib/formatDate';
 import { Clock, RefreshCw, Tag, Pencil, Trash2 } from 'lucide-react';
 import { Post } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
@@ -118,7 +117,7 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
             }}
           >
             <Clock size={12} />
-            {format(new Date(post.created_at), 'yyyy년 M월 d일 HH:mm', { locale: ko })}
+            {formatKST(post.created_at)}
           </span>
 
           {isEdited && (
@@ -132,7 +131,7 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
               }}
             >
               <RefreshCw size={11} />
-              수정: {format(new Date(post.updated_at), 'yyyy년 M월 d일 HH:mm', { locale: ko })}
+              수정: {formatKST(post.updated_at)}
             </span>
           )}
         </div>

@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { formatKST } from '@/lib/formatDate';
 import { Clock, RefreshCw, ArrowLeft, Pencil, Paperclip, FileText, FileImage, File } from 'lucide-react';
 import Link from 'next/link';
 import GNB from '@/components/GNB';
@@ -58,12 +57,12 @@ export default async function PostPage({ params }: { params: { slug: string } })
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', paddingBottom: '24px', borderBottom: '1px solid var(--border)', marginBottom: '40px' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
             <Clock size={13} />
-            작성: {format(new Date(post.created_at), 'yyyy년 M월 d일 HH:mm', { locale: ko })}
+            작성: {formatKST(post.created_at)}
           </span>
           {isEdited && (
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
               <RefreshCw size={12} />
-              수정: {format(new Date(post.updated_at), 'yyyy년 M월 d일 HH:mm', { locale: ko })}
+              수정: {formatKST(post.updated_at)}
             </span>
           )}
           {!post.published && (

@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
+import { formatKSTShort } from '@/lib/formatDate';
 import { PenSquare, LogIn, LogOut, ChevronRight } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Post } from '@/lib/types';
@@ -203,7 +202,7 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
                   color: 'var(--text-muted)',
                 }}
               >
-                {format(new Date(post.created_at), 'yy.MM.dd', { locale: ko })}
+                {formatKSTShort(post.created_at)}
               </div>
             </Link>
           ))
