@@ -5,6 +5,7 @@ import { Clock, RefreshCw, ArrowLeft, Pencil, Paperclip, FileText, FileImage, Fi
 import Link from 'next/link';
 import GNB from '@/components/GNB';
 import PostContent from '@/components/PostContent';
+import PostActions from '@/components/PostActions';
 import { getBlogName } from '@/lib/blogSettings';
 
 export const dynamic = 'force-dynamic';
@@ -15,7 +16,6 @@ export default async function PostPage({ params }: { params: { slug: string } })
   const isLoggedIn = !!user;
   const blogName = await getBlogName();
 
-  // URL 인코딩된 slug 디코딩 (한글 slug 등 대비)
   const rawSlug = decodeURIComponent(params.slug);
 
   const { data: post } = await supabase
@@ -40,6 +40,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
           <ArrowLeft size={14} /> 목록으로
         </Link>
 
+        {/* Tags */}
         {post.tags && post.tags.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
             {post.tags.map((tag: string) => (
@@ -50,10 +51,12 @@ export default async function PostPage({ params }: { params: { slug: string } })
           </div>
         )}
 
+        {/* Title */}
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2.25rem', fontWeight: 700, color: 'var(--text)', lineHeight: 1.35, letterSpacing: '-0.02em', marginBottom: '20px' }}>
           {post.title}
         </h1>
 
+        {/* Meta + 수정/삭제 버튼 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', paddingBottom: '24px', borderBottom: '1px solid var(--border)', marginBottom: '40px' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
             <Clock size={13} />
@@ -70,13 +73,14 @@ export default async function PostPage({ params }: { params: { slug: string } })
               비공개
             </span>
           )}
+
+          {/* 수정/삭제 — 클라이언트 컴포넌트로 분리 */}
           {isOwner && (
-            <Link href={`/write?id=${post.id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', marginLeft: 'auto', fontSize: '0.8rem', color: 'var(--text-muted)', textDecoration: 'none', padding: '5px 12px', border: '1px solid var(--border)', borderRadius: '6px', transition: 'all 0.15s ease' }} className="hover:text-accent hover:border-accent">
-              <Pencil size={12} /> 수정
-            </Link>
+            <PostActions postId={post.id} postTitle={post.title} />
           )}
         </div>
 
+        {/* Content */}
         <PostContent content={post.content} contentType={post.content_type} />
 
         {/* 첨부파일 */}
@@ -91,26 +95,11 @@ export default async function PostPage({ params }: { params: { slug: string } })
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {files.map((f: any, i: number) => (
-                  <a
-                    key={i}
-                    href={f.dataUrl}
-                    download={f.name}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '10px',
-                      padding: '10px 14px',
-                      background: 'var(--bg-card)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '8px',
-                      textDecoration: 'none',
-                      transition: 'border-color 0.15s ease',
-                    }}
-                  >
+                  <a key={i} href={f.dataUrl} download={f.name} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '8px', textDecoration: 'none', transition: 'border-color 0.15s ease' }}>
                     <span style={{ color: 'var(--accent)', flexShrink: 0 }}>
                       {f.type?.startsWith('image/') ? <FileImage size={14} /> : f.type?.includes('pdf') || f.type?.includes('text') ? <FileText size={14} /> : <File size={14} />}
                     </span>
-                    <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {f.name}
-                    </span>
+                    <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</span>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
                       {f.size < 1024 ? f.size + ' B' : f.size < 1024*1024 ? (f.size/1024).toFixed(1) + ' KB' : (f.size/(1024*1024)).toFixed(1) + ' MB'}
                     </span>
