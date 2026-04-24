@@ -1,9 +1,14 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Download, Upload, Trash2, AlertTriangle, CheckCircle, Loader2, ArrowLeft } from 'lucide-react';
+import {
+  Download, Upload, Trash2, AlertTriangle, CheckCircle,
+  Loader2, ArrowLeft, Save, PenLine,
+} from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -16,15 +21,33 @@ export default function SettingsPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; msg: string } | null>(null);
+
+  // 블로그 이름
+  const [blogName, setBlogName] = useState('블로그');
+  const [blogNameInput, setBlogNameInput] = useState('블로그');
+  const [savingName, setSavingName] = useState(false);
+
+  // 백업/마이그레이션
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importPreview, setImportPreview] = useState<any[] | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) { router.push('/login'); return; }
       setUser(user);
+
+      // 블로그 이름 불러오기
+      const { data } = await supabase
+        .from('blog_settings')
+        .select('blog_name')
+        .eq('user_id', user.id)
+        .single();
+      const name = data?.blog_name || '블로그';
+      setBlogName(name);
+      setBlogNameInput(name);
+
       setLoading(false);
     });
   }, []);
@@ -32,6 +55,36 @@ export default function SettingsPage() {
   const showStatus = (type: 'success' | 'error' | 'info', msg: string) => {
     setStatus({ type, msg });
     setTimeout(() => setStatus(null), 5000);
+  };
+
+  // ── 블로그 이름 저장 ───────────────────────────────────
+  const handleSaveBlogName = async () => {
+    const trimmed = blogNameInput.trim();
+    if (!trimmed) { showStatus('error', '블로그 이름을 입력해주세요.'); return; }
+    setSavingName(true);
+    try {
+      const { data: existing } = await supabase
+        .from('blog_settings')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (existing) {
+        await supabase
+          .from('blog_settings')
+          .update({ blog_name: trimmed, updated_at: new Date().toISOString() })
+          .eq('user_id', user.id);
+      } else {
+        await supabase
+          .from('blog_settings')
+          .insert({ user_id: user.id, blog_name: trimmed });
+      }
+      setBlogName(trimmed);
+      showStatus('success', '블로그 이름이 저장됐습니다.');
+    } catch (e: any) {
+      showStatus('error', '저장 실패: ' + e.message);
+    }
+    setSavingName(false);
   };
 
   // ── 백업 (Export) ──────────────────────────────────────
@@ -42,7 +95,6 @@ export default function SettingsPage() {
         .from('posts')
         .select('*')
         .order('created_at', { ascending: false });
-
       if (error) throw error;
 
       const backup = {
@@ -51,7 +103,6 @@ export default function SettingsPage() {
         post_count: posts?.length || 0,
         posts: posts || [],
       };
-
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -59,7 +110,6 @@ export default function SettingsPage() {
       a.download = `blog-backup-${format(new Date(), 'yyyyMMdd-HHmmss')}.json`;
       a.click();
       URL.revokeObjectURL(url);
-
       showStatus('success', `${posts?.length}개의 포스트를 백업했습니다.`);
     } catch (e: any) {
       showStatus('error', '백업 실패: ' + e.message);
@@ -71,17 +121,15 @@ export default function SettingsPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
         const data = JSON.parse(ev.target?.result as string);
         if (!data.posts || !Array.isArray(data.posts)) {
-          showStatus('error', '올바른 백업 파일 형식이 아닙니다.');
-          return;
+          showStatus('error', '올바른 백업 파일 형식이 아닙니다.'); return;
         }
         setImportPreview(data.posts);
-        showStatus('info', `${data.posts.length}개의 포스트를 가져올 준비가 됐습니다. 아래에서 확인 후 가져오기를 실행하세요.`);
+        showStatus('info', `${data.posts.length}개의 포스트를 가져올 준비가 됐습니다. 확인 후 가져오기를 실행하세요.`);
       } catch {
         showStatus('error', 'JSON 파일을 파싱할 수 없습니다.');
       }
@@ -93,40 +141,23 @@ export default function SettingsPage() {
   const handleImport = async () => {
     if (!importPreview || !user) return;
     setImporting(true);
-
     try {
-      let success = 0;
-      let skip = 0;
-
+      let success = 0, skip = 0;
       for (const post of importPreview) {
-        // slug 중복 체크
         const { data: existing } = await supabase
-          .from('posts')
-          .select('id')
-          .eq('slug', post.slug)
-          .single();
-
-        if (existing) {
-          // slug 충돌 시 새 slug 생성
-          post.slug = post.slug + '-import-' + Date.now();
-        }
+          .from('posts').select('id').eq('slug', post.slug).single();
+        if (existing) post.slug = post.slug + '-import-' + Date.now();
 
         const { error } = await supabase.from('posts').insert({
-          title: post.title,
-          content: post.content,
+          title: post.title, content: post.content,
           content_type: post.content_type || 'wysiwyg',
-          slug: post.slug,
-          excerpt: post.excerpt,
-          tags: post.tags || [],
-          published: post.published ?? true,
+          slug: post.slug, excerpt: post.excerpt,
+          tags: post.tags || [], published: post.published ?? true,
           user_id: user.id,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
+          created_at: post.created_at, updated_at: post.updated_at,
         });
-
         if (error) { skip++; } else { success++; }
       }
-
       showStatus('success', `가져오기 완료: ${success}개 성공, ${skip}개 건너뜀`);
       setImportPreview(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -158,17 +189,10 @@ export default function SettingsPage() {
   };
 
   const btnStyle = (variant: 'primary' | 'secondary' | 'danger') => ({
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-    padding: '9px 18px',
-    borderRadius: '8px',
-    fontSize: '0.875rem',
-    fontWeight: 600,
-    cursor: 'pointer',
-    border: 'none',
-    fontFamily: 'var(--font-pretendard)',
-    transition: 'opacity 0.15s ease',
+    display: 'inline-flex', alignItems: 'center', gap: '6px',
+    padding: '9px 18px', borderRadius: '8px', fontSize: '0.875rem',
+    fontWeight: 600, cursor: 'pointer', border: 'none',
+    fontFamily: 'var(--font-pretendard)', transition: 'opacity 0.15s ease',
     ...(variant === 'primary' && { background: 'var(--accent)', color: 'white' }),
     ...(variant === 'secondary' && { background: 'var(--bg-secondary)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }),
     ...(variant === 'danger' && { background: '#fef2f2', border: '1px solid #fca5a5', color: '#dc2626' }),
@@ -200,26 +224,21 @@ export default function SettingsPage() {
         {/* Status */}
         {status && (
           <div
+            className="animate-fade-in"
             style={{
-              marginBottom: '20px',
-              padding: '12px 16px',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '10px',
-              fontSize: '0.875rem',
+              marginBottom: '20px', padding: '12px 16px', borderRadius: '8px',
+              display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '0.875rem',
               background: status.type === 'success' ? '#f0fdf4' : status.type === 'error' ? '#fef2f2' : '#eff6ff',
               border: `1px solid ${status.type === 'success' ? '#86efac' : status.type === 'error' ? '#fca5a5' : '#93c5fd'}`,
               color: status.type === 'success' ? '#16a34a' : status.type === 'error' ? '#dc2626' : '#2563eb',
             }}
-            className="animate-fade-in"
           >
             {status.type === 'success' ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
             {status.msg}
           </div>
         )}
 
-        {/* Account Info */}
+        {/* 계정 정보 */}
         <div style={cardStyle}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.125rem', fontWeight: 600, color: 'var(--text)', marginBottom: '16px' }}>
             계정 정보
@@ -237,7 +256,54 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Backup */}
+        {/* 블로그 이름 설정 */}
+        <div style={cardStyle}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.125rem', fontWeight: 600, color: 'var(--text)', marginBottom: '6px' }}>
+            ✏️ 블로그 이름
+          </h2>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '20px', lineHeight: 1.6 }}>
+            GNB 로고와 브라우저 탭 제목에 표시됩니다. 현재: <strong style={{ color: 'var(--accent)' }}>{blogName}</strong>
+          </p>
+
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={blogNameInput}
+              onChange={(e) => setBlogNameInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSaveBlogName(); }}
+              placeholder="블로그 이름 입력"
+              maxLength={40}
+              style={{
+                flex: 1,
+                padding: '10px 14px',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                background: 'var(--bg-secondary)',
+                color: 'var(--text)',
+                fontSize: '0.925rem',
+                fontFamily: 'var(--font-pretendard)',
+                outline: 'none',
+              }}
+            />
+            <button
+              onClick={handleSaveBlogName}
+              disabled={savingName || blogNameInput.trim() === blogName}
+              style={{
+                ...(btnStyle('primary') as any),
+                opacity: (savingName || blogNameInput.trim() === blogName) ? 0.5 : 1,
+                cursor: (savingName || blogNameInput.trim() === blogName) ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {savingName ? <Loader2 size={14} /> : <Save size={14} />}
+              {savingName ? '저장 중...' : '저장'}
+            </button>
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>
+            {blogNameInput.length} / 40자
+          </div>
+        </div>
+
+        {/* 포스트 백업 */}
         <div style={cardStyle}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.125rem', fontWeight: 600, color: 'var(--text)', marginBottom: '8px' }}>
             📦 포스트 백업
@@ -245,17 +311,13 @@ export default function SettingsPage() {
           <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '20px', lineHeight: 1.6 }}>
             모든 포스트를 JSON 파일로 내보냅니다. 이 파일로 다른 블로그에 마이그레이션하거나 복구할 수 있습니다.
           </p>
-          <button
-            onClick={handleExport}
-            disabled={exporting}
-            style={btnStyle('primary') as any}
-          >
-            {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+          <button onClick={handleExport} disabled={exporting} style={btnStyle('primary') as any}>
+            {exporting ? <Loader2 size={14} /> : <Download size={14} />}
             {exporting ? '내보내는 중...' : 'JSON으로 백업'}
           </button>
         </div>
 
-        {/* Migration / Import */}
+        {/* 포스트 가져오기 */}
         <div style={cardStyle}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.125rem', fontWeight: 600, color: 'var(--text)', marginBottom: '8px' }}>
             📥 포스트 가져오기 (마이그레이션)
@@ -266,18 +328,8 @@ export default function SettingsPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                onChange={handleFileSelect}
-                style={{ display: 'none' }}
-                id="import-file"
-              />
-              <label
-                htmlFor="import-file"
-                style={{ ...(btnStyle('secondary') as any), cursor: 'pointer' }}
-              >
+              <input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelect} style={{ display: 'none' }} id="import-file" />
+              <label htmlFor="import-file" style={{ ...(btnStyle('secondary') as any), cursor: 'pointer' }}>
                 <Upload size={14} /> JSON 파일 선택
               </label>
               {importPreview && (
@@ -287,32 +339,11 @@ export default function SettingsPage() {
               )}
             </div>
 
-            {/* Import Preview */}
             {importPreview && importPreview.length > 0 && (
-              <div
-                style={{
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  maxHeight: '240px',
-                  overflowY: 'auto',
-                }}
-              >
+              <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', maxHeight: '240px', overflowY: 'auto' }}>
                 {importPreview.slice(0, 20).map((post, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      padding: '10px 14px',
-                      borderBottom: i < Math.min(importPreview.length, 20) - 1 ? '1px solid var(--border)' : 'none',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <span style={{ fontSize: '0.875rem', color: 'var(--text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
-                      {post.title}
-                    </span>
+                  <div key={i} style={{ padding: '10px 14px', borderBottom: i < Math.min(importPreview.length, 20) - 1 ? '1px solid var(--border)' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.875rem', color: 'var(--text)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{post.title}</span>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: '12px', whiteSpace: 'nowrap' }}>
                       {post.created_at ? format(new Date(post.created_at), 'yy.MM.dd', { locale: ko }) : '-'}
                     </span>
@@ -327,26 +358,16 @@ export default function SettingsPage() {
             )}
 
             {importPreview && (
-              <button
-                onClick={handleImport}
-                disabled={importing}
-                style={btnStyle('primary') as any}
-              >
-                {importing ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+              <button onClick={handleImport} disabled={importing} style={btnStyle('primary') as any}>
+                {importing ? <Loader2 size={14} /> : <Upload size={14} />}
                 {importing ? '가져오는 중...' : `${importPreview.length}개 포스트 가져오기`}
               </button>
             )}
           </div>
         </div>
 
-        {/* Danger Zone */}
-        <div
-          style={{
-            ...cardStyle,
-            border: '1px solid #fca5a5',
-            background: '#fff5f5',
-          }}
-        >
+        {/* 위험 구역 */}
+        <div style={{ ...cardStyle, border: '1px solid #fca5a5', background: '#fff5f5' }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.125rem', fontWeight: 600, color: '#dc2626', marginBottom: '8px' }}>
             ⚠️ 위험 구역
           </h2>
@@ -354,18 +375,12 @@ export default function SettingsPage() {
             아래 작업은 되돌릴 수 없습니다. 백업 후 진행하세요.
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <button
-              onClick={handleClearAll}
-              style={btnStyle('danger') as any}
-            >
+            <button onClick={handleClearAll} style={btnStyle('danger') as any}>
               <Trash2 size={14} />
               {confirmClear ? '정말로 삭제하시겠습니까? (한 번 더 클릭)' : '모든 포스트 삭제'}
             </button>
             {confirmClear && (
-              <button
-                onClick={() => setConfirmClear(false)}
-                style={btnStyle('secondary') as any}
-              >
+              <button onClick={() => setConfirmClear(false)} style={btnStyle('secondary') as any}>
                 취소
               </button>
             )}

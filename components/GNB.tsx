@@ -2,14 +2,15 @@
 
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { Sun, Moon, Settings } from 'lucide-react';
+import { Sun, Moon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface GNBProps {
   isLoggedIn: boolean;
+  blogName?: string;
 }
 
-export default function GNB({ isLoggedIn }: GNBProps) {
+export default function GNB({ isLoggedIn, blogName = '블로그' }: GNBProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -27,7 +28,7 @@ export default function GNB({ isLoggedIn }: GNBProps) {
     >
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
+        <Link href="/" style={{ textDecoration: 'none' }}>
           <span
             style={{
               fontFamily: 'var(--font-display)',
@@ -37,7 +38,7 @@ export default function GNB({ isLoggedIn }: GNBProps) {
               letterSpacing: '-0.02em',
             }}
           >
-            블로그
+            {blogName}
           </span>
         </Link>
 
@@ -63,7 +64,6 @@ export default function GNB({ isLoggedIn }: GNBProps) {
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
-              className="hover:text-accent"
               title={theme === 'dark' ? '라이트 모드' : '다크 모드'}
             >
               {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
@@ -75,13 +75,7 @@ export default function GNB({ isLoggedIn }: GNBProps) {
   );
 }
 
-function NavLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link
       href={href}

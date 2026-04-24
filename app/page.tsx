@@ -3,6 +3,7 @@ import GNB from '@/components/GNB';
 import Sidebar from '@/components/Sidebar';
 import PostCard from '@/components/PostCard';
 import { Post } from '@/lib/types';
+import { getBlogName } from '@/lib/blogSettings';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,17 +20,14 @@ export default async function Home({
 
   const isLoggedIn = !!user;
   const selectedTag = searchParams.tag;
+  const blogName = await getBlogName();
 
-  // Fetch all posts for sidebar (list)
+  // Fetch all posts for sidebar
   let sidebarQuery = supabase
     .from('posts')
     .select('id, title, slug, created_at, updated_at, tags')
     .order('created_at', { ascending: false });
-
-  if (!isLoggedIn) {
-    sidebarQuery = sidebarQuery.eq('published', true);
-  }
-
+  if (!isLoggedIn) sidebarQuery = sidebarQuery.eq('published', true);
   const { data: allPosts } = await sidebarQuery;
 
   // Fetch main posts (with tag filter)
@@ -37,45 +35,21 @@ export default async function Home({
     .from('posts')
     .select('*')
     .order('created_at', { ascending: false });
-
-  if (!isLoggedIn) {
-    mainQuery = mainQuery.eq('published', true);
-  }
-
-  if (selectedTag) {
-    mainQuery = mainQuery.contains('tags', [selectedTag]);
-  }
-
+  if (!isLoggedIn) mainQuery = mainQuery.eq('published', true);
+  if (selectedTag) mainQuery = mainQuery.contains('tags', [selectedTag]);
   const { data: posts } = await mainQuery;
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
-      <GNB isLoggedIn={isLoggedIn} />
+      <GNB isLoggedIn={isLoggedIn} blogName={blogName} />
 
       <main className="max-w-6xl mx-auto px-6 py-10">
         {selectedTag && (
           <div className="mb-6 flex items-center gap-3">
-            <span
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: '1.5rem',
-                fontWeight: 600,
-                color: 'var(--text)',
-              }}
-            >
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 600, color: 'var(--text)' }}>
               #{selectedTag}
             </span>
-            <a
-              href="/"
-              style={{
-                fontSize: '0.8rem',
-                color: 'var(--text-muted)',
-                textDecoration: 'none',
-                padding: '3px 10px',
-                border: '1px solid var(--border)',
-                borderRadius: '20px',
-              }}
-            >
+            <a href="/" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textDecoration: 'none', padding: '3px 10px', border: '1px solid var(--border)', borderRadius: '20px' }}>
               ✕ 필터 해제
             </a>
           </div>
@@ -96,24 +70,8 @@ export default async function Home({
                 ))}
               </div>
             ) : (
-              <div
-                style={{
-                  textAlign: 'center',
-                  padding: '80px 40px',
-                  color: 'var(--text-muted)',
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '12px',
-                }}
-              >
-                <div
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: '1.25rem',
-                    marginBottom: '8px',
-                    color: 'var(--text-secondary)',
-                  }}
-                >
+              <div style={{ textAlign: 'center', padding: '80px 40px', color: 'var(--text-muted)', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', marginBottom: '8px', color: 'var(--text-secondary)' }}>
                   아직 포스트가 없습니다
                 </div>
                 <div style={{ fontSize: '0.9rem' }}>첫 번째 포스트를 작성해보세요.</div>
