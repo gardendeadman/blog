@@ -2,21 +2,41 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import dynamic from 'next/dynamic';
-import { Save, X, Eye, EyeOff, Tag as TagIcon, ChevronDown } from 'lucide-react';
+import nextDynamic from 'next/dynamic';
+import { Save, X, Eye, EyeOff, Tag as TagIcon, Paperclip, FileText, FileImage, File, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
-const WysiwygEditor = dynamic(() => import('@/components/WysiwygEditor'), { ssr: false });
-const MarkdownEditor = dynamic(() => import('@/components/MarkdownEditor'), { ssr: false });
+const WysiwygEditor = nextDynamic(() => import('@/components/WysiwygEditor'), { ssr: false });
+const MarkdownEditor = nextDynamic(() => import('@/components/MarkdownEditor'), { ssr: false });
+
+interface AttachedFile {
+  name: string;
+  size: number;
+  type: string;
+  dataUrl: string;
+}
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function FileIcon({ type }: { type: string }) {
+  if (type.startsWith('image/')) return <FileImage size={14} />;
+  if (type.includes('pdf') || type.includes('text')) return <FileText size={14} />;
+  return <File size={14} />;
+}
 
 function WritePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const postId = searchParams.get('id');
   const supabase = createClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -24,6 +44,7 @@ function WritePageInner() {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [published, setPublished] = useState(true);
+  const [attachments, setAttachments] = useState<AttachedFile[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -44,6 +65,10 @@ function WritePageInner() {
           setContentType(data.content_type || 'wysiwyg');
           setTags(data.tags || []);
           setPublished(data.published);
+          // 첨부파일 복원
+          if (data.attachments) {
+            try { setAttachments(JSON.parse(data.attachments)); } catch {}
+          }
         }
         setLoading(false);
       });
@@ -79,6 +104,26 @@ function WritePageInner() {
     return text.slice(0, 200);
   };
 
+  // 파일 첨부
+  const handleFileAttach = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const dataUrl = ev.target?.result as string;
+        setAttachments((prev) => [
+          ...prev,
+          { name: file.name, size: file.size, type: file.type, dataUrl },
+        ]);
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  };
+
+  const removeAttachment = (idx: number) =>
+    setAttachments((prev) => prev.filter((_, i) => i !== idx));
+
   const handleSave = async () => {
     if (!title.trim()) { setError('제목을 입력해주세요.'); return; }
     if (!content.trim()) { setError('내용을 입력해주세요.'); return; }
@@ -96,25 +141,21 @@ function WritePageInner() {
       published,
       excerpt: generateExcerpt(content, contentType),
       user_id: user.id,
+      attachments: attachments.length > 0 ? JSON.stringify(attachments) : null,
     };
 
     if (postId) {
       const { error } = await supabase.from('posts').update(payload).eq('id', postId);
       if (error) { setError('저장에 실패했습니다: ' + error.message); setSaving(false); return; }
-      router.push('/');
-      router.refresh();
     } else {
-      const { error } = await supabase.from('posts').insert({
-        ...payload,
-        slug: generateSlug(title),
-      });
+      const { error } = await supabase.from('posts').insert({ ...payload, slug: generateSlug(title) });
       if (error) { setError('저장에 실패했습니다: ' + error.message); setSaving(false); return; }
-      router.push('/');
-      router.refresh();
     }
+    router.push('/');
+    router.refresh();
   };
 
-  const inputStyle = {
+  const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '11px 14px',
     border: '1px solid var(--border)',
@@ -173,7 +214,7 @@ function WritePageInner() {
             </div>
           )}
 
-          {/* Title */}
+          {/* ① 제목 */}
           <input
             type="text"
             placeholder="제목을 입력하세요"
@@ -193,24 +234,187 @@ function WritePageInner() {
             }}
           />
 
-          {/* Tags */}
-          <div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
-              {tags.map((tag) => (
-                <span
-                  key={tag}
+          {/* ② 에디터 타입 토글 + 공개 여부 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              에디터
+            </span>
+            <div style={{ display: 'flex', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', padding: '3px' }}>
+              {(['wysiwyg', 'markdown'] as const).map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setContentType(type)}
                   style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '4px',
-                    fontSize: '0.8rem', fontWeight: 600, color: 'var(--accent)',
-                    background: 'var(--accent-subtle)', padding: '4px 10px',
-                    borderRadius: '20px', cursor: 'pointer',
+                    padding: '5px 14px', borderRadius: '6px', border: 'none',
+                    background: contentType === type ? 'var(--accent)' : 'transparent',
+                    color: contentType === type ? 'white' : 'var(--text-secondary)',
+                    fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
+                    fontFamily: 'var(--font-pretendard)', transition: 'all 0.15s ease',
                   }}
-                  onClick={() => removeTag(tag)}
                 >
-                  #{tag} ×
-                </span>
+                  {type === 'wysiwyg' ? 'WYSIWYG' : 'Markdown'}
+                </button>
               ))}
             </div>
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                onClick={() => setPublished(!published)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '4px',
+                  padding: '5px 12px', borderRadius: '6px',
+                  background: published ? 'var(--accent-subtle)' : 'var(--bg-secondary)',
+                  border: `1px solid ${published ? 'var(--accent)' : 'var(--border)'}`,
+                  color: published ? 'var(--accent)' : 'var(--text-muted)',
+                  fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
+                  fontFamily: 'var(--font-pretendard)',
+                }}
+              >
+                {published ? <Eye size={13} /> : <EyeOff size={13} />}
+                {published ? '공개' : '비공개'}
+              </button>
+            </div>
+          </div>
+
+          {/* ③ 에디터 본문 */}
+          {contentType === 'wysiwyg' ? (
+            <WysiwygEditor value={content} onChange={setContent} />
+          ) : (
+            <MarkdownEditor value={content} onChange={setContent} />
+          )}
+
+          {/* ④ 파일 첨부 */}
+          <div
+            style={{
+              border: '1px solid var(--border)',
+              borderRadius: '10px',
+              overflow: 'hidden',
+              background: 'var(--bg-card)',
+            }}
+          >
+            {/* 헤더 */}
+            <div
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '12px 16px',
+                background: 'var(--bg-secondary)',
+                borderBottom: attachments.length > 0 ? '1px solid var(--border)' : 'none',
+              }}
+            >
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Paperclip size={13} />
+                파일 첨부
+                {attachments.length > 0 && (
+                  <span style={{ background: 'var(--accent)', color: 'white', borderRadius: '10px', padding: '1px 7px', fontSize: '0.7rem' }}>
+                    {attachments.length}
+                  </span>
+                )}
+              </span>
+              <label
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '5px',
+                  padding: '5px 12px', borderRadius: '6px',
+                  background: 'var(--bg-card)', border: '1px solid var(--border)',
+                  color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  style={{ display: 'none' }}
+                  onChange={handleFileAttach}
+                />
+                + 파일 선택
+              </label>
+            </div>
+
+            {/* 첨부 파일 목록 */}
+            {attachments.length > 0 && (
+              <div style={{ padding: '8px 0' }}>
+                {attachments.map((f, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      padding: '8px 16px',
+                      borderBottom: i < attachments.length - 1 ? '1px solid var(--border)' : 'none',
+                    }}
+                  >
+                    <span style={{ color: 'var(--accent)', flexShrink: 0 }}>
+                      <FileIcon type={f.type} />
+                    </span>
+                    <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {f.name}
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                      {formatBytes(f.size)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeAttachment(i)}
+                      style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: 'var(--text-muted)', padding: '2px', flexShrink: 0,
+                        display: 'flex', alignItems: 'center',
+                      }}
+                      title="삭제"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 비어있을 때 드롭존 */}
+            {attachments.length === 0 && (
+              <div
+                style={{
+                  padding: '20px',
+                  textAlign: 'center',
+                  fontSize: '0.8rem',
+                  color: 'var(--text-muted)',
+                }}
+              >
+                첨부할 파일을 선택하세요
+              </div>
+            )}
+          </div>
+
+          {/* ⑤ 해시태그 (최하단) */}
+          <div
+            style={{
+              border: '1px solid var(--border)',
+              borderRadius: '10px',
+              padding: '16px',
+              background: 'var(--bg-card)',
+            }}
+          >
+            <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <TagIcon size={13} />
+              해시태그
+            </div>
+            {/* 태그 목록 */}
+            {tags.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                {tags.map((tag) => (
+                  <span
+                    key={tag}
+                    onClick={() => removeTag(tag)}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '4px',
+                      fontSize: '0.8rem', fontWeight: 600, color: 'var(--accent)',
+                      background: 'var(--accent-subtle)', padding: '4px 10px',
+                      borderRadius: '20px', cursor: 'pointer',
+                    }}
+                  >
+                    #{tag} ×
+                  </span>
+                ))}
+              </div>
+            )}
+            {/* 입력 */}
             <div style={{ display: 'flex', gap: '8px' }}>
               <input
                 type="text"
@@ -236,56 +440,6 @@ function WritePageInner() {
             </div>
           </div>
 
-          {/* Editor Type Toggle */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              에디터
-            </span>
-            <div style={{ display: 'flex', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', padding: '3px' }}>
-              {(['wysiwyg', 'markdown'] as const).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setContentType(type)}
-                  style={{
-                    padding: '5px 14px', borderRadius: '6px', border: 'none',
-                    background: contentType === type ? 'var(--accent)' : 'transparent',
-                    color: contentType === type ? 'white' : 'var(--text-secondary)',
-                    fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
-                    fontFamily: 'var(--font-pretendard)', transition: 'all 0.15s ease',
-                  }}
-                >
-                  {type === 'wysiwyg' ? 'WYSIWYG' : 'Markdown'}
-                </button>
-              ))}
-            </div>
-
-            {/* Published toggle */}
-            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>공개</span>
-              <button
-                onClick={() => setPublished(!published)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '4px',
-                  padding: '5px 12px', borderRadius: '6px',
-                  background: published ? 'var(--accent-subtle)' : 'var(--bg-secondary)',
-                  border: `1px solid ${published ? 'var(--accent)' : 'var(--border)'}`,
-                  color: published ? 'var(--accent)' : 'var(--text-muted)',
-                  fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
-                  fontFamily: 'var(--font-pretendard)',
-                }}
-              >
-                {published ? <Eye size={13} /> : <EyeOff size={13} />}
-                {published ? '공개' : '비공개'}
-              </button>
-            </div>
-          </div>
-
-          {/* Editor */}
-          {contentType === 'wysiwyg' ? (
-            <WysiwygEditor value={content} onChange={setContent} />
-          ) : (
-            <MarkdownEditor value={content} onChange={setContent} />
-          )}
         </div>
       </main>
     </div>

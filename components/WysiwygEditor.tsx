@@ -9,7 +9,7 @@ import { useRef } from 'react';
 import {
   Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3,
   List, ListOrdered, Quote, Minus, Link as LinkIcon, Image as ImageIcon,
-  Undo, Redo, Code2, Upload,
+  Undo, Redo, Code2,
 } from 'lucide-react';
 
 interface WysiwygEditorProps {
@@ -63,13 +63,29 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
     </button>
   );
 
-  // 로컬 파일 → base64 → 에디터 삽입
+  // 이미지 → 30% 크기 리사이즈 후 에디터 삽입 (품질 원본 유지)
+  const resizeAndInsert = (src: string) => {
+    const img = new window.Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.naturalWidth * 0.3);
+      canvas.height = Math.round(img.naturalHeight * 0.3);
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      // 원본 포맷 유지 (PNG는 PNG, 그 외는 JPEG 무손실에 가깝게)
+      const mime = src.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
+      const resized = canvas.toDataURL(mime);
+      editor.chain().focus().setImage({ src: resized }).run();
+    };
+    img.src = src;
+  };
+
   const handleImageFile = (file: File) => {
     if (!file.type.startsWith('image/')) return;
     const reader = new FileReader();
     reader.onload = (e) => {
       const src = e.target?.result as string;
-      if (src) editor.chain().focus().setImage({ src }).run();
+      if (src) resizeAndInsert(src);
     };
     reader.readAsDataURL(file);
   };
@@ -143,23 +159,7 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
         <Divider />
         <ToolbarBtn onClick={addLink} active={editor.isActive('link')} title="링크"><LinkIcon size={14} /></ToolbarBtn>
 
-        {/* 이미지 업로드 버튼 */}
-        <button
-          type="button"
-          onClick={handleImageUpload}
-          title="이미지 파일 업로드"
-          style={{
-            display: 'flex', alignItems: 'center', gap: '4px',
-            height: '30px', padding: '0 8px', borderRadius: '5px', border: 'none',
-            background: 'transparent', color: 'var(--text-secondary)',
-            cursor: 'pointer', transition: 'all 0.15s ease',
-            fontSize: '0.75rem', fontFamily: 'var(--font-pretendard)',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          <ImageIcon size={14} />
-          <span>이미지</span>
-        </button>
+        <ToolbarBtn onClick={handleImageUpload} active={false} title="이미지 업로드"><ImageIcon size={14} /></ToolbarBtn>
 
         <Divider />
         <ToolbarBtn onClick={() => editor.chain().focus().undo().run()} active={false} title="실행 취소"><Undo size={14} /></ToolbarBtn>

@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { Clock, RefreshCw, ArrowLeft, Pencil } from 'lucide-react';
+import { Clock, RefreshCw, ArrowLeft, Pencil, Paperclip, FileText, FileImage, File } from 'lucide-react';
 import Link from 'next/link';
 import GNB from '@/components/GNB';
 import PostContent from '@/components/PostContent';
@@ -79,6 +79,48 @@ export default async function PostPage({ params }: { params: { slug: string } })
         </div>
 
         <PostContent content={post.content} contentType={post.content_type} />
+
+        {/* 첨부파일 */}
+        {post.attachments && (() => {
+          let files: any[] = [];
+          try { files = JSON.parse(post.attachments); } catch {}
+          if (!files.length) return null;
+          return (
+            <div style={{ marginTop: '40px', padding: '20px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '10px' }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Paperclip size={13} /> 첨부파일 ({files.length})
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {files.map((f: any, i: number) => (
+                  <a
+                    key={i}
+                    href={f.dataUrl}
+                    download={f.name}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      padding: '10px 14px',
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '8px',
+                      textDecoration: 'none',
+                      transition: 'border-color 0.15s ease',
+                    }}
+                  >
+                    <span style={{ color: 'var(--accent)', flexShrink: 0 }}>
+                      {f.type?.startsWith('image/') ? <FileImage size={14} /> : f.type?.includes('pdf') || f.type?.includes('text') ? <FileText size={14} /> : <File size={14} />}
+                    </span>
+                    <span style={{ flex: 1, fontSize: '0.875rem', color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {f.name}
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                      {f.size < 1024 ? f.size + ' B' : f.size < 1024*1024 ? (f.size/1024).toFixed(1) + ' KB' : (f.size/(1024*1024)).toFixed(1) + ' MB'}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         <div style={{ marginTop: '60px', paddingTop: '32px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
           <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: 'var(--text-secondary)', textDecoration: 'none', padding: '10px 20px', border: '1px solid var(--border)', borderRadius: '8px', transition: 'all 0.15s ease' }} className="hover:text-accent hover:border-accent">
