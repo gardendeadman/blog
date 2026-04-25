@@ -178,11 +178,8 @@ function WritePageInner() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       {/* Header */}
-      <header style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', position: 'sticky', top: 0, zIndex: 50 }}>
+      <header style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50 }}>
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between mobile-px">
-          <Link href="/" style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent)', textDecoration: 'none' }}>
-            Blog
-          </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.875rem', color: 'var(--text-secondary)', textDecoration: 'none', padding: '7px 14px', border: '1px solid var(--border)', borderRadius: '8px' }}>
               <X size={14} /> Cancel
@@ -205,7 +202,7 @@ function WritePageInner() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-8 mobile-px mobile-py">
+      <main className="max-w-4xl mx-auto px-6 py-8 mobile-px mobile-py" style={{ paddingTop: 'calc(64px + 2rem)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           {error && (
