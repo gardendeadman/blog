@@ -35,10 +35,10 @@ export default function NotFound() {
           color: 'var(--text)',
         }}
       >
-        페이지를 찾을 수 없습니다
+        Page Not Found
       </h1>
       <p style={{ color: 'var(--text-muted)', fontSize: '0.925rem' }}>
-        요청하신 페이지가 존재하지 않거나 삭제되었습니다.
+        요청하신 페이지가 존재하지 않거나 Delete되었습니다.
       </p>
       <Link
         href="/"
@@ -53,7 +53,7 @@ export default function NotFound() {
           fontWeight: 600,
         }}
       >
-        홈으로 돌아가기
+        홈으로 Back
       </Link>
     </div>
   );

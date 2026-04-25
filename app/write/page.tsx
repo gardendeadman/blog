@@ -65,7 +65,7 @@ function WritePageInner() {
           setContentType(data.content_type || 'wysiwyg');
           setTags(data.tags || []);
           setPublished(data.published);
-          // 첨부파일 복원
+          // Attachments 복원
           if (data.attachments) {
             try { setAttachments(JSON.parse(data.attachments)); } catch {}
           }
@@ -104,7 +104,7 @@ function WritePageInner() {
     return text.slice(0, 200);
   };
 
-  // 파일 첨부
+  // Attachments
   const handleFileAttach = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     files.forEach((file) => {
@@ -125,8 +125,8 @@ function WritePageInner() {
     setAttachments((prev) => prev.filter((_, i) => i !== idx));
 
   const handleSave = async () => {
-    if (!title.trim()) { setError('제목을 입력해주세요.'); return; }
-    if (!content.trim()) { setError('내용을 입력해주세요.'); return; }
+    if (!title.trim()) { setError('Please enter a title.'); return; }
+    if (!content.trim()) { setError('Please enter content.'); return; }
     setError('');
     setSaving(true);
 
@@ -146,10 +146,10 @@ function WritePageInner() {
 
     if (postId) {
       const { error } = await supabase.from('posts').update(payload).eq('id', postId);
-      if (error) { setError('저장에 실패했습니다: ' + error.message); setSaving(false); return; }
+      if (error) { setError('Failed to save: ' + error.message); setSaving(false); return; }
     } else {
       const { error } = await supabase.from('posts').insert({ ...payload, slug: generateSlug(title) });
-      if (error) { setError('저장에 실패했습니다: ' + error.message); setSaving(false); return; }
+      if (error) { setError('Failed to save: ' + error.message); setSaving(false); return; }
     }
     router.push('/');
     router.refresh();
@@ -181,11 +181,11 @@ function WritePageInner() {
       <header style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', position: 'sticky', top: 0, zIndex: 50 }}>
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent)', textDecoration: 'none' }}>
-            블로그
+            Blog
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.875rem', color: 'var(--text-secondary)', textDecoration: 'none', padding: '7px 14px', border: '1px solid var(--border)', borderRadius: '8px' }}>
-              <X size={14} /> 취소
+              <X size={14} /> Cancel
             </Link>
             <button
               onClick={handleSave}
@@ -199,7 +199,7 @@ function WritePageInner() {
               }}
             >
               <Save size={14} />
-              {saving ? '저장 중...' : (postId ? '수정 완료' : '발행')}
+              {saving ? 'Saving...' : (postId ? 'Update' : 'Publish')}
             </button>
           </div>
         </div>
@@ -217,7 +217,7 @@ function WritePageInner() {
           {/* ① 제목 */}
           <input
             type="text"
-            placeholder="제목을 입력하세요"
+            placeholder="Enter title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             style={{
@@ -234,10 +234,10 @@ function WritePageInner() {
             }}
           />
 
-          {/* ② 에디터 타입 토글 + 공개 여부 */}
+          {/* ② Editor 타입 토글 + Public 여부 */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              에디터
+              Editor
             </span>
             <div style={{ display: 'flex', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', padding: '3px' }}>
               {(['wysiwyg', 'markdown'] as const).map((type) => (
@@ -270,19 +270,19 @@ function WritePageInner() {
                 }}
               >
                 {published ? <Eye size={13} /> : <EyeOff size={13} />}
-                {published ? '공개' : '비공개'}
+                {published ? 'Public' : '비Public'}
               </button>
             </div>
           </div>
 
-          {/* ③ 에디터 본문 */}
+          {/* ③ Editor 본문 */}
           {contentType === 'wysiwyg' ? (
             <WysiwygEditor value={content} onChange={setContent} />
           ) : (
             <MarkdownEditor value={content} onChange={setContent} />
           )}
 
-          {/* ④ 파일 첨부 */}
+          {/* ④ Attachments */}
           <div
             style={{
               border: '1px solid var(--border)',
@@ -302,7 +302,7 @@ function WritePageInner() {
             >
               <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Paperclip size={13} />
-                파일 첨부
+                Attachments
                 {attachments.length > 0 && (
                   <span style={{ background: 'var(--accent)', color: 'white', borderRadius: '10px', padding: '1px 7px', fontSize: '0.7rem' }}>
                     {attachments.length}
@@ -325,7 +325,7 @@ function WritePageInner() {
                   style={{ display: 'none' }}
                   onChange={handleFileAttach}
                 />
-                + 파일 선택
+                + Choose file
               </label>
             </div>
 
@@ -358,7 +358,7 @@ function WritePageInner() {
                         color: 'var(--text-muted)', padding: '2px', flexShrink: 0,
                         display: 'flex', alignItems: 'center',
                       }}
-                      title="삭제"
+                      title="Delete"
                     >
                       <Trash2 size={13} />
                     </button>
@@ -377,12 +377,12 @@ function WritePageInner() {
                   color: 'var(--text-muted)',
                 }}
               >
-                첨부할 파일을 선택하세요
+                Select files to attach
               </div>
             )}
           </div>
 
-          {/* ⑤ 해시태그 (최하단) */}
+          {/* ⑤ Tags (최하단) */}
           <div
             style={{
               border: '1px solid var(--border)',
@@ -393,7 +393,7 @@ function WritePageInner() {
           >
             <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <TagIcon size={13} />
-              해시태그
+              Tags
             </div>
             {/* 태그 목록 */}
             {tags.length > 0 && (
@@ -418,7 +418,7 @@ function WritePageInner() {
             <div style={{ display: 'flex', gap: '8px' }}>
               <input
                 type="text"
-                placeholder="#태그 입력 후 Enter"
+                placeholder="Add tag and press Enter"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
@@ -435,7 +435,7 @@ function WritePageInner() {
                   display: 'flex', alignItems: 'center', gap: '4px',
                 }}
               >
-                <TagIcon size={13} /> 추가
+                <TagIcon size={13} /> Add
               </button>
             </div>
           </div>

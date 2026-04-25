@@ -63,7 +63,7 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
     </button>
   );
 
-  // 이미지 → 30% 크기 리사이즈 후 에디터 삽입 (품질 원본 유지)
+  // 이미지 → 30% 크기 리사이즈 후 Editor 삽입 (품질 원본 유지)
   const resizeAndInsert = (src: string) => {
     const img = new window.Image();
     img.onload = () => {
@@ -72,7 +72,7 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
       canvas.height = Math.round(img.naturalHeight * 0.3);
       const ctx = canvas.getContext('2d')!;
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      // 원본 포맷 유지 (PNG는 PNG, 그 외는 JPEG 무손실에 가깝게)
+      // 원본 포맷 유지 (PNG는 PNG, 그 and는 JPEG 무손실에 가깝게)
       const mime = src.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
       const resized = canvas.toDataURL(mime);
       editor.chain().focus().setImage({ src: resized }).run();
@@ -144,7 +144,7 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
       >
         <ToolbarBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} title="굵게"><Bold size={14} /></ToolbarBtn>
         <ToolbarBtn onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} title="기울임"><Italic size={14} /></ToolbarBtn>
-        <ToolbarBtn onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} title="취소선"><Strikethrough size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} title="Cancel선"><Strikethrough size={14} /></ToolbarBtn>
         <ToolbarBtn onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive('code')} title="인라인 코드"><Code size={14} /></ToolbarBtn>
         <Divider />
         <ToolbarBtn onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={editor.isActive('heading', { level: 1 })} title="제목 1"><Heading1 size={14} /></ToolbarBtn>
@@ -162,13 +162,13 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
         <ToolbarBtn onClick={handleImageUpload} active={false} title="이미지 업로드"><ImageIcon size={14} /></ToolbarBtn>
 
         <Divider />
-        <ToolbarBtn onClick={() => editor.chain().focus().undo().run()} active={false} title="실행 취소"><Undo size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().undo().run()} active={false} title="실행 Cancel"><Undo size={14} /></ToolbarBtn>
         <ToolbarBtn onClick={() => editor.chain().focus().redo().run()} active={false} title="다시 실행"><Redo size={14} /></ToolbarBtn>
       </div>
 
       {/* 드래그 드롭 안내 */}
       <div style={{ padding: '4px 14px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-        이미지를 드래그 앤 드롭하거나 툴바의 이미지 버튼으로 업로드하세요
+        Drag & drop an image or use the toolbar button to upload
       </div>
 
       {/* Editor */}

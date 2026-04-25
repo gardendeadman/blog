@@ -11,10 +11,11 @@ export default async function AboutPage() {
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = !!user;
   const { blogName, bio, profileImage } = await getBlogSettings();
+  const hasBio = !!bio?.trim();
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
-      <GNB isLoggedIn={isLoggedIn} blogName={blogName} />
+      <GNB isLoggedIn={isLoggedIn} blogName={blogName} hasBio={hasBio} />
       <main className="max-w-2xl mx-auto px-6 py-16">
         <div style={{
           background: 'var(--bg-card)',
@@ -36,7 +37,7 @@ export default async function AboutPage() {
             }
           </div>
 
-          {/* 블로그 이름 */}
+          {/* Blog 이름 */}
           <h1 style={{
             fontFamily: 'var(--font-display)',
             fontSize: '2rem', fontWeight: 700,
@@ -52,15 +53,15 @@ export default async function AboutPage() {
             marginBottom: '28px',
           }} />
 
-          {/* 소개글 */}
+          {/* About글 */}
           {bio ? (
             <div className="post-content" style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{bio}</ReactMarkdown>
             </div>
           ) : (
             <div style={{ color: 'var(--text-muted)', fontSize: '0.925rem', lineHeight: 1.8 }}>
-              <p>안녕하세요, <strong style={{ color: 'var(--text)' }}>{blogName}</strong>에 오신 것을 환영합니다.</p>
-              <p style={{ marginTop: '8px' }}>설정 화면에서 소개글을 작성할 수 있습니다.</p>
+              <p>Welcome to <strong style={{ color: 'var(--text)' }}>{blogName}</strong>.</p>
+              <p style={{ marginTop: '8px' }}>Settings 화면에서 About글을 작성할 수 있습니다.</p>
             </div>
           )}
 

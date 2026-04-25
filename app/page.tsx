@@ -3,7 +3,7 @@ import GNB from '@/components/GNB';
 import Sidebar from '@/components/Sidebar';
 import PostCard from '@/components/PostCard';
 import { Post } from '@/lib/types';
-import { getBlogName } from '@/lib/blogSettings';
+import { getBlogSettings } from '@/lib/blogSettings';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +20,8 @@ export default async function Home({
 
   const isLoggedIn = !!user;
   const selectedTag = searchParams.tag;
-  const blogName = await getBlogName();
+  const { blogName, bio } = await getBlogSettings();
+  const hasBio = !!bio?.trim();
 
   // Fetch all posts for sidebar
   let sidebarQuery = supabase
@@ -41,7 +42,7 @@ export default async function Home({
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
-      <GNB isLoggedIn={isLoggedIn} blogName={blogName} />
+      <GNB isLoggedIn={isLoggedIn} blogName={blogName} hasBio={hasBio} />
 
       <main className="max-w-6xl mx-auto px-6 py-10">
         {selectedTag && (
@@ -50,7 +51,7 @@ export default async function Home({
               #{selectedTag}
             </span>
             <a href="/" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textDecoration: 'none', padding: '3px 10px', border: '1px solid var(--border)', borderRadius: '20px' }}>
-              ✕ 필터 해제
+              ✕ Clear filter
             </a>
           </div>
         )}
@@ -72,9 +73,9 @@ export default async function Home({
             ) : (
               <div style={{ textAlign: 'center', padding: '80px 40px', color: 'var(--text-muted)', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', marginBottom: '8px', color: 'var(--text-secondary)' }}>
-                  아직 포스트가 없습니다
+                  아직 No posts yet
                 </div>
-                <div style={{ fontSize: '0.9rem' }}>첫 번째 포스트를 작성해보세요.</div>
+                <div style={{ fontSize: '0.9rem' }}>Write your first post.</div>
               </div>
             )}
           </div>

@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -23,7 +25,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      setError('이메일 또는 비밀번호가 올바르지 않습니다.');
+      setError('Email 또는 Password가 올바르지 않습니다.');
       setLoading(false);
     } else {
       router.push('/');
@@ -76,10 +78,10 @@ export default function LoginPage() {
               textDecoration: 'none',
             }}
           >
-            블로그
+            Blog
           </Link>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '8px' }}>
-            관리자 로그인
+            관리chars Sign in
           </p>
         </div>
 
@@ -96,7 +98,7 @@ export default function LoginPage() {
                 letterSpacing: '0.05em',
               }}
             >
-              이메일
+              Email
             </label>
             <input
               type="email"
@@ -120,7 +122,7 @@ export default function LoginPage() {
                 letterSpacing: '0.05em',
               }}
             >
-              비밀번호
+              Password
             </label>
             <div style={{ position: 'relative' }}>
               <input
@@ -189,7 +191,7 @@ export default function LoginPage() {
             }}
           >
             <LogIn size={16} />
-            {loading ? '로그인 중...' : '로그인'}
+            {loading ? 'Sign in 중...' : 'Sign in'}
           </button>
         </form>
 
@@ -202,7 +204,7 @@ export default function LoginPage() {
               textDecoration: 'none',
             }}
           >
-            ← 블로그로 돌아가기
+            ← Back to blog
           </Link>
         </div>
       </div>

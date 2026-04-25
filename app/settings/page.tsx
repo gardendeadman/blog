@@ -20,16 +20,16 @@ import { ko } from 'date-fns/locale';
 
 // 사전 정의 컬러 팔레트
 const PRESET_COLORS = [
-  { label: '테라코타',  value: '#d4622a' },
-  { label: '인디고',    value: '#4f46e5' },
-  { label: '에메랄드',  value: '#059669' },
-  { label: '로즈',      value: '#e11d48' },
-  { label: '앰버',      value: '#d97706' },
-  { label: '바이올렛',  value: '#7c3aed' },
-  { label: '스카이',    value: '#0284c7' },
-  { label: '핑크',      value: '#db2777' },
-  { label: '슬레이트',  value: '#475569' },
-  { label: '틸',        value: '#0d9488' },
+  { label: 'Terracotta',  value: '#d4622a' },
+  { label: 'Indigo',    value: '#4f46e5' },
+  { label: 'Emerald',  value: '#059669' },
+  { label: 'Rose',      value: '#e11d48' },
+  { label: 'Amber',      value: '#d97706' },
+  { label: 'Violet',  value: '#7c3aed' },
+  { label: 'Sky',    value: '#0284c7' },
+  { label: 'Pink',      value: '#db2777' },
+  { label: 'Slate',  value: '#475569' },
+  { label: 'Teal',        value: '#0d9488' },
 ];
 
 export default function SettingsPage() {
@@ -46,12 +46,12 @@ export default function SettingsPage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const profileInputRef = useRef<HTMLInputElement>(null);
 
-  // 블로그 이름
-  const [blogName, setBlogName] = useState('블로그');
-  const [blogNameInput, setBlogNameInput] = useState('블로그');
+  // Blog 이름
+  const [blogName, setBlogName] = useState('Blog');
+  const [blogNameInput, setBlogNameInput] = useState('Blog');
   const [savingName, setSavingName] = useState(false);
 
-  // 소개글
+  // About글
   const [bio, setBio] = useState('');
   const [bioInput, setBioInput] = useState('');
   const [savingBio, setSavingBio] = useState(false);
@@ -78,7 +78,7 @@ export default function SettingsPage() {
         .eq('user_id', user.id)
         .single();
 
-      const name = data?.blog_name || '블로그';
+      const name = data?.blog_name || 'Blog';
       const color = data?.accent_color || '#d4622a';
       const bioVal = data?.bio || '';
       const profileVal = data?.profile_image || '';
@@ -137,9 +137,9 @@ export default function SettingsPage() {
         try {
           await upsertSettings({ profile_image: resized });
           setProfileImage(resized);
-          showStatus('success', '프로필 이미지가 저장됐습니다. 파비콘은 페이지 새로고침 후 반영됩니다.');
+          showStatus('success', '프로필 이미지가 Save됐습니다. 파비콘은 페이지 새로고침 후 반영됩니다.');
         } catch (e: any) {
-          showStatus('error', '저장 실패: ' + e.message);
+          showStatus('error', 'Save 실패: ' + e.message);
         }
         setSavingProfile(false);
       };
@@ -154,55 +154,55 @@ export default function SettingsPage() {
     try {
       await upsertSettings({ profile_image: '' });
       setProfileImage('');
-      showStatus('success', '프로필 이미지가 삭제됐습니다.');
+      showStatus('success', 'Profile image removed.');
     } catch (e: any) {
-      showStatus('error', '삭제 실패: ' + e.message);
+      showStatus('error', 'Delete failed: ' + e.message);
     }
     setSavingProfile(false);
   };
 
-  // ── 블로그 이름 저장 ───────────────────────────────────
+  // ── Blog 이름 Save ───────────────────────────────────
   const handleSaveBlogName = async () => {
     const trimmed = blogNameInput.trim();
-    if (!trimmed) { showStatus('error', '블로그 이름을 입력해주세요.'); return; }
+    if (!trimmed) { showStatus('error', 'Please enter a blog name.'); return; }
     setSavingName(true);
     try {
       await upsertSettings({ blog_name: trimmed });
       setBlogName(trimmed);
-      showStatus('success', '블로그 이름이 저장됐습니다.');
+      showStatus('success', 'Blog 이름이 Save됐습니다.');
     } catch (e: any) {
-      showStatus('error', '저장 실패: ' + e.message);
+      showStatus('error', 'Save 실패: ' + e.message);
     }
     setSavingName(false);
   };
 
-  // ── 소개글 저장 ───────────────────────────────────────
+  // ── About글 Save ───────────────────────────────────────
   const handleSaveBio = async () => {
     setSavingBio(true);
     try {
       await upsertSettings({ bio: bioInput });
       setBio(bioInput);
-      showStatus('success', '소개글이 저장됐습니다.');
+      showStatus('success', 'About글이 Save됐습니다.');
     } catch (e: any) {
-      showStatus('error', '저장 실패: ' + e.message);
+      showStatus('error', 'Save 실패: ' + e.message);
     }
     setSavingBio(false);
   };
 
-  // ── 테마 컬러 저장 ─────────────────────────────────────
+  // ── 테마 컬러 Save ─────────────────────────────────────
   const handleSaveColor = async () => {
     const hex = accentInput.trim();
     if (!/^#[0-9a-fA-F]{6}$/.test(hex)) {
-      showStatus('error', '올바른 HEX 색상 코드를 입력해주세요. (예: #d4622a)'); return;
+      showStatus('error', 'Enter a valid HEX color code (e.g. #d4622a).'); return;
     }
     setSavingColor(true);
     try {
       await upsertSettings({ accent_color: hex });
       setAccentColor(hex);
-      applyAccent(hex); // 저장 즉시 페이지에 반영
-      showStatus('success', '테마 컬러가 저장됐습니다.');
+      applyAccent(hex); // Save 즉시 페이지에 반영
+      showStatus('success', '테마 컬러가 Save됐습니다.');
     } catch (e: any) {
-      showStatus('error', '저장 실패: ' + e.message);
+      showStatus('error', 'Save 실패: ' + e.message);
     }
     setSavingColor(false);
   };
@@ -227,9 +227,9 @@ export default function SettingsPage() {
       a.download = `blog-backup-${format(new Date(), 'yyyyMMdd-HHmmss')}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      showStatus('success', `${posts?.length}개의 포스트를 백업했습니다.`);
+      showStatus('success', `${posts?.length} posts exported.`);
     } catch (e: any) {
-      showStatus('error', '백업 실패: ' + e.message);
+      showStatus('error', 'Backup failed: ' + e.message);
     }
     setExporting(false);
   };
@@ -242,10 +242,10 @@ export default function SettingsPage() {
     reader.onload = (ev) => {
       try {
         const data = JSON.parse(ev.target?.result as string);
-        if (!data.posts || !Array.isArray(data.posts)) { showStatus('error', '올바른 백업 파일 형식이 아닙니다.'); return; }
+        if (!data.posts || !Array.isArray(data.posts)) { showStatus('error', 'Invalid backup file format.'); return; }
         setImportPreview(data.posts);
-        showStatus('info', `${data.posts.length}개의 포스트를 가져올 준비가 됐습니다.`);
-      } catch { showStatus('error', 'JSON 파일을 파싱할 수 없습니다.'); }
+        showStatus('info', `${data.posts.length} posts ready to import.`);
+      } catch { showStatus('error', 'Could not parse JSON file.'); }
     };
     reader.readAsText(file);
   };
@@ -267,22 +267,22 @@ export default function SettingsPage() {
         });
         if (error) { skip++; } else { success++; }
       }
-      showStatus('success', `가져오기 완료: ${success}개 성공, ${skip}개 건너뜀`);
+      showStatus('success', `Import complete: ${success} succeeded, ${skip} skipped`);
       setImportPreview(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
-    } catch (e: any) { showStatus('error', '가져오기 실패: ' + e.message); }
+    } catch (e: any) { showStatus('error', 'Import failed: ' + e.message); }
     setImporting(false);
   };
 
-  // ── 전체 삭제 ──────────────────────────────────────────
+  // ── 전체 Delete ──────────────────────────────────────────
   const handleClearAll = async () => {
     if (!confirmClear) { setConfirmClear(true); return; }
     try {
       const { error } = await supabase.from('posts').delete().eq('user_id', user.id);
       if (error) throw error;
-      showStatus('success', '모든 포스트가 삭제됐습니다.');
+      showStatus('success', 'All posts deleted.');
       setConfirmClear(false);
-    } catch (e: any) { showStatus('error', '삭제 실패: ' + e.message); }
+    } catch (e: any) { showStatus('error', 'Delete failed: ' + e.message); }
   };
 
   const card: React.CSSProperties = {
@@ -330,10 +330,10 @@ export default function SettingsPage() {
       <header style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', position: 'sticky', top: 0, zIndex: 50 }}>
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center gap-4">
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: 'var(--text-muted)', textDecoration: 'none' }}>
-            <ArrowLeft size={14} /> 돌아가기
+            <ArrowLeft size={14} /> Back
           </Link>
           <span style={{ color: 'var(--border)' }}>|</span>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', fontWeight: 600, color: 'var(--text)' }}>설정</span>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', fontWeight: 600, color: 'var(--text)' }}>Settings</span>
         </div>
       </header>
 
@@ -353,15 +353,15 @@ export default function SettingsPage() {
           </div>
         )}
 
-        {/* 계정 정보 */}
+        {/* Account */}
         <div style={card}>
-          <h2 style={sectionTitle}>계정 정보</h2>
+          <h2 style={sectionTitle}>Account</h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'var(--accent-subtle)', border: '2px solid var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>✍️</div>
             <div>
               <div style={{ fontWeight: 600, color: 'var(--text)', marginBottom: '2px' }}>{user?.email}</div>
               <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                가입일: {user?.created_at ? formatKST(user.created_at, 'yyyy년 M월 d일') : '-'}
+                Joined: {user?.created_at ? formatKST(user.created_at) : '-'}
               </div>
             </div>
           </div>
@@ -369,9 +369,9 @@ export default function SettingsPage() {
 
         {/* 프로필 이미지 */}
         <div style={card}>
-          <h2 style={sectionTitle}>🖼️ 프로필 이미지</h2>
+          <h2 style={sectionTitle}>🖼️ Profile Image</h2>
           <p style={sectionDesc}>
-            소개 페이지 아바타와 브라우저 파비콘에 사용됩니다. 정사각형 이미지를 권장합니다.
+            About 페이지 아바타와 브라우저 파비콘에 사용됩니다. 정사각형 이미지를 권장합니다.
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             {/* 미리보기 */}
@@ -402,7 +402,7 @@ export default function SettingsPage() {
                 style={{ ...btn('primary'), opacity: savingProfile ? 0.5 : 1 }}
               >
                 {savingProfile ? <Loader2 size={14} /> : <Upload size={14} />}
-                {savingProfile ? '저장 중...' : '이미지 선택'}
+                {savingProfile ? 'Saving...' : 'Choose image'}
               </button>
               {profileImage && (
                 <button
@@ -410,28 +410,28 @@ export default function SettingsPage() {
                   disabled={savingProfile}
                   style={btn('danger')}
                 >
-                  <Trash2 size={14} /> 삭제
+                  <Trash2 size={14} /> Delete
                 </button>
               )}
             </div>
           </div>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '12px' }}>
-            💡 파비콘은 저장 후 브라우저 새로고침(Ctrl+Shift+R) 시 반영됩니다.
+            💡 파비콘은 Save 후 브라우저 새로고침(Ctrl+Shift+R) 시 반영됩니다.
           </p>
         </div>
 
-        {/* 블로그 이름 */}
+        {/* Blog 이름 */}
         <div style={card}>
-          <h2 style={sectionTitle}>✏️ 블로그 이름</h2>
+          <h2 style={sectionTitle}>✏️ Blog Name</h2>
           <p style={sectionDesc}>
-            GNB 로고에 표시됩니다. 현재: <strong style={{ color: 'var(--accent)' }}>{blogName}</strong>
+            Displayed in the header. Current: <strong style={{ color: 'var(--accent)' }}>{blogName}</strong>
           </p>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <input
               type="text" value={blogNameInput} maxLength={40}
               onChange={(e) => setBlogNameInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSaveBlogName(); }}
-              placeholder="블로그 이름 입력"
+              placeholder="Enter blog name"
               style={inputStyle}
             />
             <button
@@ -440,22 +440,22 @@ export default function SettingsPage() {
               style={{ ...btn('primary'), opacity: (savingName || blogNameInput.trim() === blogName) ? 0.5 : 1, cursor: (savingName || blogNameInput.trim() === blogName) ? 'not-allowed' : 'pointer' }}
             >
               {savingName ? <Loader2 size={14} /> : <Save size={14} />}
-              {savingName ? '저장 중...' : '저장'}
+              {savingName ? 'Saving...' : 'Save'}
             </button>
           </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>{blogNameInput.length} / 40자</div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>{blogNameInput.length} / 40chars</div>
         </div>
 
-        {/* 소개글 */}
+        {/* About글 */}
         <div style={{ ...card, padding: 0, overflow: 'hidden' }}>
           {/* 헤더 */}
           <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--border)' }}>
-            <h2 style={sectionTitle}>📝 소개글</h2>
+            <h2 style={sectionTitle}>📝 About글</h2>
             <p style={{ ...sectionDesc, marginBottom: 0 }}>
-              소개 페이지에 표시됩니다. 마크다운 문법을 사용할 수 있습니다.
+              About 페이지에 표시됩니다. 마크다운 문법을 사용할 수 있습니다.
             </p>
           </div>
-          {/* 마크다운 에디터 — 전체 너비 */}
+          {/* 마크다운 Editor — 전체 너비 */}
           <div data-color-mode="auto" style={{ width: '100%' }}>
             <MDEditor
               value={bioInput}
@@ -472,7 +472,7 @@ export default function SettingsPage() {
             background: 'var(--bg-secondary)',
           }}>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              {bioInput.length}자
+              {bioInput.length}chars
             </span>
             <button
               onClick={handleSaveBio}
@@ -480,16 +480,16 @@ export default function SettingsPage() {
               style={{ ...btn('primary'), opacity: (savingBio || bioInput === bio) ? 0.5 : 1, cursor: (savingBio || bioInput === bio) ? 'not-allowed' : 'pointer' }}
             >
               {savingBio ? <Loader2 size={14} /> : <Save size={14} />}
-              {savingBio ? '저장 중...' : '저장'}
+              {savingBio ? 'Saving...' : 'Save'}
             </button>
           </div>
         </div>
 
         {/* 테마 컬러 */}
         <div style={card}>
-          <h2 style={sectionTitle}>🎨 테마 컬러</h2>
+          <h2 style={sectionTitle}>🎨 Theme Color</h2>
           <p style={sectionDesc}>
-            버튼, 링크, 강조 색상에 사용됩니다. 현재:{' '}
+            Used for buttons, links, and accents. Current:{' '}
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ display: 'inline-block', width: '14px', height: '14px', borderRadius: '3px', background: accentColor, border: '1px solid var(--border)', verticalAlign: 'middle' }} />
               <strong style={{ color: 'var(--accent)' }}>{accentColor}</strong>
@@ -557,7 +557,7 @@ export default function SettingsPage() {
               style={{ ...btn('primary'), opacity: (savingColor || accentInput === accentColor) ? 0.5 : 1, cursor: (savingColor || accentInput === accentColor) ? 'not-allowed' : 'pointer' }}
             >
               {savingColor ? <Loader2 size={14} /> : <Save size={14} />}
-              {savingColor ? '저장 중...' : '저장'}
+              {savingColor ? 'Saving...' : 'Save'}
             </button>
 
             {/* 미리보기 변경된 경우 리셋 */}
@@ -567,36 +567,36 @@ export default function SettingsPage() {
                 style={{ ...btn('secondary') as any, padding: '9px 12px' }}
                 title="원래 색상으로"
               >
-                되돌리기
+                Reset
               </button>
             )}
           </div>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '10px' }}>
-            💡 색상을 선택하면 즉시 미리보기가 적용됩니다. 저장 버튼을 눌러야 영구 반영됩니다.
+            💡 색상을 선택하면 즉시 미리보기가 적용됩니다. Save 버튼을 눌러야 영구 반영됩니다.
           </p>
         </div>
 
         {/* 포스트 백업 */}
         <div style={card}>
-          <h2 style={sectionTitle}>📦 포스트 백업</h2>
-          <p style={sectionDesc}>모든 포스트를 JSON 파일로 내보냅니다.</p>
+          <h2 style={sectionTitle}>📦 Backup Posts</h2>
+          <p style={sectionDesc}>Export all posts as a JSON file.</p>
           <button onClick={handleExport} disabled={exporting} style={btn('primary')}>
             {exporting ? <Loader2 size={14} /> : <Download size={14} />}
-            {exporting ? '내보내는 중...' : 'JSON으로 백업'}
+            {exporting ? 'Exporting...' : 'Export as JSON'}
           </button>
         </div>
 
         {/* 포스트 가져오기 */}
         <div style={card}>
-          <h2 style={sectionTitle}>📥 포스트 가져오기 (마이그레이션)</h2>
-          <p style={sectionDesc}>이전에 백업한 JSON 파일을 가져옵니다.</p>
+          <h2 style={sectionTitle}>📥 Import Posts (Migration)</h2>
+          <p style={sectionDesc}>Import a previously exported JSON backup.</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               <input ref={fileInputRef} type="file" accept=".json" onChange={handleFileSelect} style={{ display: 'none' }} id="import-file" />
               <label htmlFor="import-file" style={{ ...btn('secondary') as any, cursor: 'pointer' }}>
-                <Upload size={14} /> JSON 파일 선택
+                <Upload size={14} /> Choose JSON file
               </label>
-              {importPreview && <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{importPreview.length}개 포스트 로드됨</span>}
+              {importPreview && <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{importPreview.length} posts loaded</span>}
             </div>
             {importPreview && importPreview.length > 0 && (
               <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', maxHeight: '240px', overflowY: 'auto' }}>
@@ -608,13 +608,13 @@ export default function SettingsPage() {
                     </span>
                   </div>
                 ))}
-                {importPreview.length > 20 && <div style={{ padding: '10px 14px', fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center' }}>외 {importPreview.length - 20}개...</div>}
+                {importPreview.length > 20 && <div style={{ padding: '10px 14px', fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center' }}>and {importPreview.length - 20} more...</div>}
               </div>
             )}
             {importPreview && (
               <button onClick={handleImport} disabled={importing} style={btn('primary')}>
                 {importing ? <Loader2 size={14} /> : <Upload size={14} />}
-                {importing ? '가져오는 중...' : `${importPreview.length}개 포스트 가져오기`}
+                {importing ? 'Importing...' : `${importPreview.length} posts`}
               </button>
             )}
           </div>
@@ -622,14 +622,14 @@ export default function SettingsPage() {
 
         {/* 위험 구역 */}
         <div style={{ ...card, border: '1px solid #fca5a5', background: '#fff5f5' }}>
-          <h2 style={{ ...sectionTitle, color: '#dc2626' }}>⚠️ 위험 구역</h2>
-          <p style={{ ...sectionDesc, color: '#ef4444' }}>아래 작업은 되돌릴 수 없습니다. 백업 후 진행하세요.</p>
+          <h2 style={{ ...sectionTitle, color: '#dc2626' }}>⚠️ Danger Zone</h2>
+          <p style={{ ...sectionDesc, color: '#ef4444' }}>These actions cannot be undone. Please backup first.</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button onClick={handleClearAll} style={btn('danger')}>
               <Trash2 size={14} />
-              {confirmClear ? '정말로 삭제하시겠습니까? (한 번 더 클릭)' : '모든 포스트 삭제'}
+              {confirmClear ? 'Are you sure? Click again to confirm' : 'Delete all posts'}
             </button>
-            {confirmClear && <button onClick={() => setConfirmClear(false)} style={btn('secondary')}>취소</button>}
+            {confirmClear && <button onClick={() => setConfirmClear(false)} style={btn('secondary')}>Cancel</button>}
           </div>
         </div>
       </main>

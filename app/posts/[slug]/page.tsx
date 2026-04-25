@@ -6,7 +6,7 @@ import Link from 'next/link';
 import GNB from '@/components/GNB';
 import PostContent from '@/components/PostContent';
 import PostActions from '@/components/PostActions';
-import { getBlogName } from '@/lib/blogSettings';
+import { getBlogSettings } from '@/lib/blogSettings';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +14,8 @@ export default async function PostPage({ params }: { params: { slug: string } })
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = !!user;
-  const blogName = await getBlogName();
+  const { blogName, bio } = await getBlogSettings();
+  const hasBio = !!bio?.trim();
 
   const rawSlug = decodeURIComponent(params.slug);
 
@@ -33,11 +34,11 @@ export default async function PostPage({ params }: { params: { slug: string } })
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
-      <GNB isLoggedIn={isLoggedIn} blogName={blogName} />
+      <GNB isLoggedIn={isLoggedIn} blogName={blogName} hasBio={hasBio} />
 
       <main className="max-w-3xl mx-auto px-6 py-10">
         <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: 'var(--text-muted)', textDecoration: 'none', marginBottom: '32px', transition: 'color 0.15s ease' }} className="hover:text-accent">
-          <ArrowLeft size={14} /> 목록으로
+          <ArrowLeft size={14} /> Back to list
         </Link>
 
         {/* Tags */}
@@ -56,25 +57,25 @@ export default async function PostPage({ params }: { params: { slug: string } })
           {post.title}
         </h1>
 
-        {/* Meta + 수정/삭제 버튼 */}
+        {/* Meta + 수정/Delete 버튼 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', paddingBottom: '24px', borderBottom: '1px solid var(--border)', marginBottom: '40px' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
             <Clock size={13} />
-            작성: {formatKST(post.created_at)}
+            Posted: {formatKST(post.created_at)}
           </span>
           {isEdited && (
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
               <RefreshCw size={12} />
-              수정: {formatKST(post.updated_at)}
+              Updated: {formatKST(post.updated_at)}
             </span>
           )}
           {!post.published && (
             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#d97706', background: '#fef3c7', padding: '2px 10px', borderRadius: '20px' }}>
-              비공개
+              비Public
             </span>
           )}
 
-          {/* 수정/삭제 — 클라이언트 컴포넌트로 분리 */}
+          {/* 수정/Delete — 클라이언트 컴포넌트로 분리 */}
           {isOwner && (
             <PostActions postId={post.id} postTitle={post.title} />
           )}
@@ -83,7 +84,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
         {/* Content */}
         <PostContent content={post.content} contentType={post.content_type} />
 
-        {/* 첨부파일 */}
+        {/* Attachments */}
         {post.attachments && (() => {
           let files: any[] = [];
           try { files = JSON.parse(post.attachments); } catch {}
@@ -91,7 +92,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
           return (
             <div style={{ marginTop: '40px', padding: '20px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '10px' }}>
               <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Paperclip size={13} /> 첨부파일 ({files.length})
+                <Paperclip size={13} /> Attachments ({files.length})
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {files.map((f: any, i: number) => (
@@ -112,7 +113,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
 
         <div style={{ marginTop: '60px', paddingTop: '32px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
           <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: 'var(--text-secondary)', textDecoration: 'none', padding: '10px 20px', border: '1px solid var(--border)', borderRadius: '8px', transition: 'all 0.15s ease' }} className="hover:text-accent hover:border-accent">
-            <ArrowLeft size={14} /> 다른 포스트 보기
+            <ArrowLeft size={14} /> More posts
           </Link>
         </div>
       </main>

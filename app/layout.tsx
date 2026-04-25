@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
       default: blogName,
       template: `%s | ${blogName}`,
     },
-    description: `${blogName} 블로그`,
+    description: `${blogName} — Personal Blog`,
     ...(icons && { icons }),
   };
 }
@@ -30,7 +30,7 @@ export default async function RootLayout({
   const { accentColor, blogName, profileImage } = await getBlogSettings();
 
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body>
         <ClientProviders
           accentColor={accentColor}

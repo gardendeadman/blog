@@ -95,7 +95,7 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
             {isEdited && (
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                 <RefreshCw size={11} />
-                수정: {formatKST(post.updated_at)}
+                Updated: {formatKST(post.updated_at)}
               </span>
             )}
           </div>
@@ -109,14 +109,14 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
               style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-muted)', textDecoration: 'none', padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border)', transition: 'all 0.15s ease' }}
               className="hover:text-accent hover:border-accent"
             >
-              <Pencil size={12} /> 수정
+              <Pencil size={12} /> Edit
             </Link>
             <button
               onClick={(e) => { e.preventDefault(); setShowModal(true); }}
               style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-muted)', background: 'transparent', padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.15s ease', fontFamily: 'var(--font-pretendard)' }}
               className="hover:text-red-500 hover:border-red-400"
             >
-              <Trash2 size={12} /> 삭제
+              <Trash2 size={12} /> Delete
             </button>
           </div>
         )}

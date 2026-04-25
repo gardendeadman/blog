@@ -66,7 +66,7 @@ export default function DeleteModal({
                 fontFamily: 'var(--font-display)', fontSize: '1.1rem',
                 fontWeight: 700, color: 'var(--text)',
               }}>
-                포스트 삭제
+                Delete Post
               </h2>
             </div>
             <button
@@ -83,7 +83,7 @@ export default function DeleteModal({
 
           {/* 본문 */}
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '8px' }}>
-            아래 포스트를 삭제합니다. 이 작업은 되돌릴 수 없습니다.
+            This action cannot be undone.
           </p>
           <div style={{
             padding: '10px 14px', borderRadius: '8px',
@@ -107,7 +107,7 @@ export default function DeleteModal({
                 cursor: 'pointer', fontFamily: 'var(--font-pretendard)',
               }}
             >
-              취소
+              Cancel
             </button>
             <button
               onClick={onConfirm}
@@ -124,7 +124,7 @@ export default function DeleteModal({
               }}
             >
               <Trash2 size={14} />
-              {deleting ? '삭제 중...' : '삭제'}
+              {deleting ? 'Deleting...' : 'Delete'}
             </button>
           </div>
         </div>

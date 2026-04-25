@@ -65,7 +65,7 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
             className="hover:border-accent hover:text-accent"
           >
             <LogOut size={14} />
-            로그아웃
+            Sign out
           </button>
         ) : (
           <button
@@ -89,7 +89,7 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
             }}
           >
             <LogIn size={14} />
-            로그인
+            Sign in
           </button>
         )}
       </div>
@@ -116,7 +116,7 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
             }}
           >
             <PenSquare size={14} />
-            포스트 작성
+            New post
           </Link>
         </div>
       )}
@@ -140,7 +140,7 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
             letterSpacing: '0.08em',
           }}
         >
-          포스트 목록
+          Posts
         </span>
         <span
           style={{
@@ -166,7 +166,7 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
               fontSize: '0.875rem',
             }}
           >
-            포스트가 없습니다
+            No posts yet
           </div>
         ) : (
           posts.map((post, i) => (
