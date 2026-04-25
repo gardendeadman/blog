@@ -44,7 +44,7 @@ export default async function Home({
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <GNB isLoggedIn={isLoggedIn} blogName={blogName} hasBio={hasBio} />
 
-      <main className="max-w-6xl mx-auto px-6 py-10">
+      <main className="max-w-6xl mx-auto px-6 py-10" style={{ paddingTop: "calc(64px + 2.5rem)" }}>
         {selectedTag && (
           <div className="mb-6 flex items-center gap-3">
             <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 600, color: 'var(--text)' }}>
@@ -58,7 +58,7 @@ export default async function Home({
 
         <div className="layout-main" style={{ display: 'flex', gap: '28px', alignItems: 'flex-start' }}>
           {/* Main Posts */}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ flex: 1, minWidth: 0, marginRight: 'calc(260px + 28px)' }} className="posts-main-area">
             {posts && posts.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {posts.map((post: Post, i: number) => (

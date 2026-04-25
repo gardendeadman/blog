@@ -81,9 +81,12 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
         border: '1px solid var(--border)',
         borderRadius: '12px',
         overflow: 'hidden',
-        height: 'fit-content',
-        position: 'sticky',
+        position: 'fixed',
         top: '80px',
+        right: 'max(calc((100vw - 1152px) / 2 + 16px), 16px)',
+        height: 'calc(100vh - 96px)',
+        display: 'flex',
+        flexDirection: 'column',
       }}
       className="sidebar-wrapper"
     >
@@ -142,7 +145,7 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
       </div>
 
       {/* Post List */}
-      <div className="sidebar-post-list" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
+      <div className="sidebar-post-list" style={{ flex: 1, overflowY: 'auto' }}>
         {posts.length === 0 ? (
           <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
             No posts yet

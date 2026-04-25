@@ -36,7 +36,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <GNB isLoggedIn={isLoggedIn} blogName={blogName} hasBio={hasBio} />
 
-      <main className="max-w-3xl mx-auto px-6 py-10 mobile-px mobile-py">
+      <main className="max-w-3xl mx-auto px-6 mobile-px" style={{ paddingTop: "calc(64px + 2.5rem)", paddingBottom: "2.5rem" }}>
         <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: 'var(--text-muted)', textDecoration: 'none', marginBottom: '32px', transition: 'color 0.15s ease' }} className="hover:text-accent">
           <ArrowLeft size={14} /> Back to list
         </Link>

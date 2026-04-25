@@ -462,3 +462,19 @@ body {
     border-right: none !important;
   }
 }
+
+
+/* ── Sidebar fixed → static on mobile ── */
+@media (max-width: 768px) {
+  .sidebar-wrapper {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    right: auto !important;
+    border-radius: 12px !important;
+  }
+
+  .posts-main-area {
+    margin-right: 0 !important;
+  }
+}

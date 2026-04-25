@@ -338,7 +338,7 @@ export default function SettingsPage() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-10 mobile-px mobile-py">
+      <main className="max-w-4xl mx-auto px-6 mobile-px" style={{ paddingTop: "calc(64px + 2.5rem)", paddingBottom: "2.5rem" }}>
 
         {/* Status message */}
         {status && (

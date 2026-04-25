@@ -16,7 +16,7 @@ export default async function AboutPage() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <GNB isLoggedIn={isLoggedIn} blogName={blogName} hasBio={hasBio} />
-      <main className="max-w-2xl mx-auto px-6 py-16 mobile-px mobile-py">
+      <main className="max-w-2xl mx-auto px-6 mobile-px" style={{ paddingTop: "calc(64px + 4rem)", paddingBottom: "4rem" }}>
         <div style={{
           background: 'var(--bg-card)',
           border: '1px solid var(--border)',

@@ -55,6 +55,7 @@ export default function LoginPage() {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '20px',
+        paddingTop: '84px',
       }}
     >
       <div

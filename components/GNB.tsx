@@ -35,8 +35,8 @@ export default function GNB({ isLoggedIn, blogName = 'Blog', hasBio = false }: G
   return (
     <>
       <header
-        style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}
-        className="sticky top-0 z-50 backdrop-blur-sm"
+        style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50 }}
+        className="backdrop-blur-sm"
       >
         <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
           {/* Logo */}
