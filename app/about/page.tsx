@@ -23,19 +23,17 @@ export default async function AboutPage() {
           borderRadius: '16px',
           padding: 'clamp(24px, 5vw, 48px)',
         }}>
-          {/* Avatar */}
-          <div style={{
-            width: '80px', height: '80px', borderRadius: '50%',
-            background: 'var(--accent-subtle)', border: '2px solid var(--accent)',
-            overflow: 'hidden',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            marginBottom: '24px', fontSize: '2rem', flexShrink: 0,
-          }}>
-            {profileImage
-              ? <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : '✍️'
-            }
-          </div>
+          {/* Avatar — only shown when profile image is set */}
+          {profileImage && (
+            <div style={{
+              width: '80px', height: '80px', borderRadius: '50%',
+              border: '2px solid var(--accent)',
+              overflow: 'hidden', flexShrink: 0,
+              marginBottom: '24px',
+            }}>
+              <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          )}
 
           {/* Blog name */}
           <h1 style={{

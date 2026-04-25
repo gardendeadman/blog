@@ -357,14 +357,9 @@ export default function SettingsPage() {
         {/* Account */}
         <div style={card}>
           <h2 style={sectionTitle}>Account</h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'var(--accent-subtle)', border: '2px solid var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>✍️</div>
-            <div>
-              <div style={{ fontWeight: 600, color: 'var(--text)', marginBottom: '2px' }}>{user?.email}</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Joined: {user?.created_at ? formatKST(user.created_at) : '-'}
-              </div>
-            </div>
+          <div style={{ fontWeight: 600, color: 'var(--text)', marginBottom: '4px' }}>{user?.email}</div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+            Joined: {user?.created_at ? formatKST(user.created_at) : '-'}
           </div>
         </div>
 
