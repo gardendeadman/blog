@@ -39,6 +39,7 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
         position: 'sticky',
         top: '80px',
       }}
+      className="sidebar-wrapper"
     >
       {/* Auth Button */}
       <div style={{ padding: '16px', borderBottom: '1px solid var(--border)' }}>
@@ -156,7 +157,7 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
       </div>
 
       {/* Post List */}
-      <div style={{ maxHeight: '65vh', overflowY: 'auto' }}>
+      <div className="sidebar-post-list" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
         {posts.length === 0 ? (
           <div
             style={{
@@ -180,7 +181,7 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
                 textDecoration: 'none',
                 transition: 'background 0.15s ease',
               }}
-              className="hover:bg-secondary group"
+              className="hover:bg-secondary group sidebar-post-item"
             >
               <div
                 style={{

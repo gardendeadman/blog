@@ -30,7 +30,7 @@ export default async function TagsPage() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <GNB isLoggedIn={isLoggedIn} blogName={blogName} hasBio={hasBio} />
-      <main className="max-w-3xl mx-auto px-6 py-10">
+      <main className="max-w-3xl mx-auto px-6 py-10 mobile-px mobile-py">
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 700, color: 'var(--text)', marginBottom: '8px' }}>
           Tags
         </h1>

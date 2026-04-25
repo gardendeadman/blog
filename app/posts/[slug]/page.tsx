@@ -36,7 +36,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <GNB isLoggedIn={isLoggedIn} blogName={blogName} hasBio={hasBio} />
 
-      <main className="max-w-3xl mx-auto px-6 py-10">
+      <main className="max-w-3xl mx-auto px-6 py-10 mobile-px mobile-py">
         <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: 'var(--text-muted)', textDecoration: 'none', marginBottom: '32px', transition: 'color 0.15s ease' }} className="hover:text-accent">
           <ArrowLeft size={14} /> Back to list
         </Link>
@@ -53,12 +53,12 @@ export default async function PostPage({ params }: { params: { slug: string } })
         )}
 
         {/* Title */}
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2.25rem', fontWeight: 700, color: 'var(--text)', lineHeight: 1.35, letterSpacing: '-0.02em', marginBottom: '20px' }}>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 5vw, 2.25rem)', fontWeight: 700, color: 'var(--text)', lineHeight: 1.35, letterSpacing: '-0.02em', marginBottom: '20px' }}>
           {post.title}
         </h1>
 
         {/* Meta + Edit/Delete buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', paddingBottom: '24px', borderBottom: '1px solid var(--border)', marginBottom: '40px' }}>
+        <div className="post-meta-wrap" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', paddingBottom: '24px', borderBottom: '1px solid var(--border)', marginBottom: '40px' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
             <Clock size={13} />
             Posted: {formatKST(post.created_at)}

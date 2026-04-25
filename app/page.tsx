@@ -56,7 +56,7 @@ export default async function Home({
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '28px', alignItems: 'flex-start' }}>
+        <div className="layout-main" style={{ display: 'flex', gap: '28px', alignItems: 'flex-start' }}>
           {/* Main Posts */}
           <div style={{ flex: 1, minWidth: 0 }}>
             {posts && posts.length > 0 ? (
@@ -81,11 +81,13 @@ export default async function Home({
           </div>
 
           {/* Sidebar */}
+          <div className="sidebar-wrapper">
           <Sidebar
             posts={(allPosts as Post[]) || []}
             isLoggedIn={isLoggedIn}
             selectedTag={selectedTag}
           />
+          </div>
         </div>
       </main>
     </div>

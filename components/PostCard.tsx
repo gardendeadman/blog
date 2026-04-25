@@ -49,7 +49,7 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
           background: 'var(--bg-card)',
           border: '1px solid var(--border)',
           borderRadius: '12px',
-          padding: '24px 28px',
+          padding: '20px 20px',
           transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
           cursor: 'pointer',
         }}
@@ -75,7 +75,7 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
           )}
 
           {/* Title */}
-          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.375rem', fontWeight: 600, color: 'var(--text)', lineHeight: 1.4, marginBottom: '10px', letterSpacing: '-0.01em' }}>
+          <h2 className="post-title-mobile" style={{ fontFamily: 'var(--font-display)', fontSize: '1.375rem', fontWeight: 600, color: 'var(--text)', lineHeight: 1.4, marginBottom: '10px', letterSpacing: '-0.01em' }}>
             {post.title}
           </h2>
 
@@ -87,7 +87,7 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
           )}
 
           {/* Meta */}
-          <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex items-center gap-4 flex-wrap post-meta-wrap">
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
               <Clock size={12} />
               {formatKST(post.created_at)}
@@ -103,7 +103,7 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
 
         {/* Owner Actions */}
         {isOwner && (
-          <div className="flex gap-2 mt-4 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+          <div className="flex gap-2 mt-4 pt-4 flex-wrap" style={{ borderTop: '1px solid var(--border)' }}>
             <Link
               href={`/write?id=${post.id}`}
               style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-muted)', textDecoration: 'none', padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border)', transition: 'all 0.15s ease' }}

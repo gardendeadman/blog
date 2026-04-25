@@ -64,7 +64,7 @@ export default function LoginPage() {
           background: 'var(--bg-card)',
           border: '1px solid var(--border)',
           borderRadius: '16px',
-          padding: '40px',
+          padding: 'clamp(24px, 6vw, 40px)',
         }}
       >
         <div className="text-center mb-8">

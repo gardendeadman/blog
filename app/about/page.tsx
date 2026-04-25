@@ -16,12 +16,12 @@ export default async function AboutPage() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <GNB isLoggedIn={isLoggedIn} blogName={blogName} hasBio={hasBio} />
-      <main className="max-w-2xl mx-auto px-6 py-16">
+      <main className="max-w-2xl mx-auto px-6 py-16 mobile-px mobile-py">
         <div style={{
           background: 'var(--bg-card)',
           border: '1px solid var(--border)',
           borderRadius: '16px',
-          padding: '48px',
+          padding: 'clamp(24px, 5vw, 48px)',
         }}>
           {/* Avatar */}
           <div style={{

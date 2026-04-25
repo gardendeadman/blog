@@ -328,7 +328,7 @@ export default function SettingsPage() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       {/* Header */}
       <header style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', position: 'sticky', top: 0, zIndex: 50 }}>
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center gap-4">
+        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center gap-4 mobile-px">
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: 'var(--text-muted)', textDecoration: 'none' }}>
             <ArrowLeft size={14} /> Back
           </Link>
@@ -337,7 +337,7 @@ export default function SettingsPage() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-10">
+      <main className="max-w-4xl mx-auto px-6 py-10 mobile-px mobile-py">
 
         {/* Status message */}
         {status && (
@@ -373,7 +373,7 @@ export default function SettingsPage() {
           <p style={sectionDesc}>
             Used as avatar on the About page and browser favicon. Square image recommended.
           </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div className="mobile-stack" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             {/* Preview */}
             <div style={{
               width: '80px', height: '80px', borderRadius: '50%',
@@ -426,7 +426,7 @@ export default function SettingsPage() {
           <p style={sectionDesc}>
             Displayed in the header. Current: <strong style={{ color: 'var(--accent)' }}>{blogName}</strong>
           </p>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <div className="form-row-mobile" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <input
               type="text" value={blogNameInput} maxLength={40}
               onChange={(e) => setBlogNameInput(e.target.value)}

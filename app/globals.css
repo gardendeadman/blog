@@ -302,3 +302,163 @@ body {
 .animate-slide-in {
   animation: slideIn 0.25s ease forwards;
 }
+
+/* ============================================
+   Mobile Responsive Utilities
+   ============================================ */
+
+/* Mobile-first layout helpers */
+@media (max-width: 768px) {
+  /* Main layout: stack sidebar below posts */
+  .layout-main {
+    flex-direction: column !important;
+  }
+
+  .sidebar-wrapper {
+    width: 100% !important;
+    min-width: 0 !important;
+    position: static !important;
+  }
+
+  /* Reduce padding on mobile */
+  .mobile-px {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .mobile-py {
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
+  }
+
+  /* Post card title size */
+  .post-title-mobile {
+    font-size: 1.125rem !important;
+  }
+
+  /* Hide desktop-only elements */
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* Full-width on mobile */
+  .mobile-full {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Smaller text on mobile */
+  .mobile-text-sm {
+    font-size: 0.8rem !important;
+  }
+
+  /* Stack flex items on mobile */
+  .mobile-stack {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  /* Post meta wrap */
+  .post-meta-wrap {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  /* About/post page padding */
+  .page-card-mobile {
+    padding: 24px 20px !important;
+  }
+
+  /* Write page title */
+  .write-title-mobile {
+    font-size: 1.25rem !important;
+  }
+
+  /* Settings/write form */
+  .form-row-mobile {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  /* GNB mobile nav hidden by default */
+  .gnb-nav-desktop {
+    display: none !important;
+  }
+
+  .gnb-nav-mobile {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .gnb-nav-mobile {
+    display: none !important;
+  }
+  .gnb-nav-desktop {
+    display: flex !important;
+  }
+}
+
+/* Mobile menu drawer */
+.mobile-menu {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px 16px;
+  z-index: 49;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.mobile-menu-link {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mobile-menu-link:hover,
+.mobile-menu-link:active {
+  background: var(--bg-secondary);
+  color: var(--accent);
+}
+
+/* Sidebar post list on mobile: horizontal scroll */
+@media (max-width: 768px) {
+  .sidebar-post-list {
+    max-height: none !important;
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    gap: 0 !important;
+    padding-bottom: 4px;
+  }
+
+  .sidebar-post-item {
+    min-width: 160px !important;
+    border-bottom: none !important;
+    border-right: 1px solid var(--border) !important;
+    white-space: normal !important;
+  }
+
+  .sidebar-post-item:last-child {
+    border-right: none !important;
+  }
+}

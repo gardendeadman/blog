@@ -179,7 +179,7 @@ function WritePageInner() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       {/* Header */}
       <header style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', position: 'sticky', top: 0, zIndex: 50 }}>
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between mobile-px">
           <Link href="/" style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 700, color: 'var(--accent)', textDecoration: 'none' }}>
             Blog
           </Link>
@@ -205,7 +205,7 @@ function WritePageInner() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-8">
+      <main className="max-w-4xl mx-auto px-6 py-8 mobile-px mobile-py">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           {error && (
@@ -222,7 +222,7 @@ function WritePageInner() {
             onChange={(e) => setTitle(e.target.value)}
             style={{
               ...inputStyle,
-              fontSize: '1.75rem',
+              fontSize: 'clamp(1.25rem, 4vw, 1.75rem)',
               fontFamily: 'var(--font-display)',
               fontWeight: 700,
               padding: '14px 0',
@@ -235,7 +235,7 @@ function WritePageInner() {
           />
 
           {/* ② Editor type toggle + visibility */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="mobile-stack" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Editor
             </span>
