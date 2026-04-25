@@ -92,7 +92,7 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
               <Clock size={12} />
               {formatKST(post.created_at)}
             </span>
-            {isEdited && (
+            {isEdited && isOwner && (
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                 <RefreshCw size={11} />
                 Updated: {formatKST(post.updated_at)}

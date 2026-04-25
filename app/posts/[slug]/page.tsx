@@ -63,7 +63,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
             <Clock size={13} />
             Posted: {formatKST(post.created_at)}
           </span>
-          {isEdited && (
+          {isEdited && isLoggedIn && (
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
               <RefreshCw size={12} />
               Updated: {formatKST(post.updated_at)}
