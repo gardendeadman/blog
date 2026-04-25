@@ -577,6 +577,9 @@ export default function SettingsPage() {
           </p>
         </div>
 
+        {/* Analytics */}
+        <AnalyticsSection />
+
         {/* Post backup */}
         <div style={card}>
           <h2 style={sectionTitle}>📦 Backup Posts</h2>
