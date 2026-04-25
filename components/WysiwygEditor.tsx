@@ -223,24 +223,13 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
     </button>
   );
 
-  const resizeAndInsert = (src: string) => {
-    const img = new window.Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.round(img.naturalWidth * 0.3);
-      canvas.height = Math.round(img.naturalHeight * 0.3);
-      const ctx = canvas.getContext('2d')!;
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      const mime = src.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
-      editor.chain().focus().setImage({ src: canvas.toDataURL(mime) }).run();
-    };
-    img.src = src;
-  };
-
   const handleImageFile = (file: File) => {
     if (!file.type.startsWith('image/')) return;
     const reader = new FileReader();
-    reader.onload = e => { const s = e.target?.result as string; if (s) resizeAndInsert(s); };
+    reader.onload = e => {
+      const src = e.target?.result as string;
+      if (src) editor.chain().focus().setImage({ src }).run();
+    };
     reader.readAsDataURL(file);
   };
 

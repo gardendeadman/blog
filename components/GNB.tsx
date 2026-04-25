@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { Sun, Moon, Menu, X, PenSquare, LogIn, LogOut } from 'lucide-react';
+import { Sun, Moon, Menu, X, LogIn, LogOut } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -67,16 +67,7 @@ export default function GNB({ isLoggedIn, blogName = 'Blog', hasBio = false }: G
               </button>
             )}
 
-            {/* Desktop: Write button */}
-            {isLoggedIn && (
-              <Link
-                href="/write"
-                className="desktop-only"
-                style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', background: 'var(--accent)', borderRadius: '8px', color: 'white', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}
-              >
-                <PenSquare size={13} /> Write
-              </Link>
-            )}
+
 
             {/* Hamburger — mobile only */}
             <button
@@ -105,9 +96,6 @@ export default function GNB({ isLoggedIn, blogName = 'Blog', hasBio = false }: G
             {hasBio && <MobileLink href="/about" onClick={() => setMenuOpen(false)}>About</MobileLink>}
             {isLoggedIn && (
               <>
-                <MobileLink href="/write" onClick={() => setMenuOpen(false)}>
-                  <PenSquare size={15} style={{ marginRight: '6px' }} /> New Post
-                </MobileLink>
                 <MobileLink href="/settings" onClick={() => setMenuOpen(false)}>Settings</MobileLink>
                 <div style={{ borderTop: '1px solid var(--border)', marginTop: '8px', paddingTop: '8px' }}>
                   <button
