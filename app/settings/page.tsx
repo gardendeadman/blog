@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import nextDynamic from 'next/dynamic';
+import AnalyticsSection from '@/components/AnalyticsSection';
 
 const MDEditor = nextDynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 import { formatKST } from '@/lib/formatDate';
