@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { formatKSTShort } from '@/lib/formatDate';
-import { PenSquare, LogIn, LogOut, Eye, Users } from 'lucide-react';
+import { PenSquare, LogIn, LogOut, Users } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Post } from '@/lib/types';
 import { useEffect, useState } from 'react';
@@ -15,8 +15,6 @@ interface SidebarProps {
 }
 
 interface VisitorStats {
-  todayViews: number;
-  totalViews: number;
   todayVisitors: number;
   totalVisitors: number;
 }
@@ -48,8 +46,6 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
         const totalRows = totalRes.data || [];
 
         setStats({
-          todayViews: todayRes.count || 0,
-          totalViews: totalRes.count || 0,
           todayVisitors: new Set(todayRows.map((r: any) => r.visitor_id).filter(Boolean)).size,
           totalVisitors: new Set(totalRows.map((r: any) => r.visitor_id).filter(Boolean)).size,
         });
@@ -100,8 +96,6 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
           {statBox('Today', stats?.todayVisitors ?? null, <Users size={10} />)}
           <div style={{ width: '1px', background: 'var(--border)' }} />
           {statBox('Total', stats?.totalVisitors ?? null, <Users size={10} />)}
-          <div style={{ width: '1px', background: 'var(--border)' }} />
-          {statBox('Views', stats?.todayViews ?? null, <Eye size={10} />)}
         </div>
       </div>
 

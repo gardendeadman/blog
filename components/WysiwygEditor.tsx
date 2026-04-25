@@ -1,17 +1,189 @@
 'use client';
 
-import { useEditor, EditorContent } from '@tiptap/react';
+import {
+  useEditor, EditorContent,
+  NodeViewWrapper, NodeViewProps, ReactNodeViewRenderer,
+} from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
+import { Image as TiptapImage } from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
-import { useRef } from 'react';
+import { useRef, useCallback, useEffect, useState } from 'react';
 import {
   Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3,
-  List, ListOrdered, Quote, Minus, Link as LinkIcon, Image as ImageIcon,
-  Undo, Redo, Code2,
+  List, ListOrdered, Quote, Minus, Link as LinkIcon,
+  Image as ImageIcon, Undo, Redo, Code2,
 } from 'lucide-react';
 
+// ── Resizable Image NodeView ───────────────────────────────
+function ResizableImageView({ node, updateAttributes, selected }: NodeViewProps) {
+  const src = node.attrs.src as string;
+  const width = node.attrs.width as number | null;
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const isResizing = useRef(false);
+  const startX = useRef(0);
+  const startWidth = useRef(0);
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isResizing.current = true;
+    startX.current = e.clientX;
+    startWidth.current = imgRef.current?.offsetWidth ?? (width ?? 300);
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!isResizing.current) return;
+      const delta = ev.clientX - startX.current;
+      const newWidth = Math.max(60, Math.round(startWidth.current + delta));
+      // live preview without saving to state
+      if (imgRef.current) imgRef.current.style.width = newWidth + 'px';
+    };
+
+    const onMouseUp = (ev: MouseEvent) => {
+      if (!isResizing.current) return;
+      isResizing.current = false;
+      const delta = ev.clientX - startX.current;
+      const newWidth = Math.max(60, Math.round(startWidth.current + delta));
+      updateAttributes({ width: newWidth });
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  }, [updateAttributes, width]);
+
+  // Touch support
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    e.stopPropagation();
+    isResizing.current = true;
+    startX.current = e.touches[0].clientX;
+    startWidth.current = imgRef.current?.offsetWidth ?? (width ?? 300);
+
+    const onTouchMove = (ev: TouchEvent) => {
+      if (!isResizing.current) return;
+      const delta = ev.touches[0].clientX - startX.current;
+      const newWidth = Math.max(60, Math.round(startWidth.current + delta));
+      if (imgRef.current) imgRef.current.style.width = newWidth + 'px';
+    };
+
+    const onTouchEnd = (ev: TouchEvent) => {
+      if (!isResizing.current) return;
+      isResizing.current = false;
+      const lastX = ev.changedTouches[0].clientX;
+      const delta = lastX - startX.current;
+      const newWidth = Math.max(60, Math.round(startWidth.current + delta));
+      updateAttributes({ width: newWidth });
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
+    };
+
+    document.addEventListener('touchmove', onTouchMove, { passive: true });
+    document.addEventListener('touchend', onTouchEnd);
+  }, [updateAttributes, width]);
+
+  return (
+    <NodeViewWrapper style={{ display: 'block' }}>
+      <div
+        ref={containerRef}
+        style={{
+          display: 'inline-block',
+          position: 'relative',
+          maxWidth: '100%',
+          lineHeight: 0,
+          userSelect: 'none',
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          ref={imgRef}
+          src={src}
+          alt=""
+          draggable={false}
+          style={{
+            display: 'block',
+            width: width ? width + 'px' : '100%',
+            maxWidth: '100%',
+            borderRadius: '6px',
+            margin: '8px 0',
+            outline: selected ? '2px solid var(--accent)' : '2px solid transparent',
+            outlineOffset: '2px',
+            transition: 'outline 0.15s ease',
+          }}
+        />
+
+        {/* Size label — visible when selected */}
+        {selected && width && (
+          <div style={{
+            position: 'absolute', top: '16px', left: '8px',
+            background: 'rgba(0,0,0,0.55)', color: 'white',
+            fontSize: '0.65rem', fontWeight: 600, padding: '2px 7px',
+            borderRadius: '4px', pointerEvents: 'none', lineHeight: 1.6,
+          }}>
+            {width}px
+          </div>
+        )}
+
+        {/* ── Right resize handle ── */}
+        {selected && (
+          <div
+            onMouseDown={onMouseDown}
+            onTouchStart={onTouchStart}
+            title="Drag to resize"
+            style={{
+              position: 'absolute',
+              top: '50%',
+              right: '-6px',
+              transform: 'translateY(-50%)',
+              width: '12px',
+              height: '36px',
+              background: 'var(--accent)',
+              borderRadius: '6px',
+              cursor: 'ew-resize',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+              zIndex: 10,
+            }}
+          >
+            {/* grip dots */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+              {[0,1,2].map(i => (
+                <div key={i} style={{ width: '3px', height: '3px', borderRadius: '50%', background: 'white', opacity: 0.85 }} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </NodeViewWrapper>
+  );
+}
+
+// ── ResizableImage Extension ───────────────────────────────
+const ResizableImage = TiptapImage.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: null,
+        parseHTML: el => {
+          const w = el.getAttribute('width') || el.style.width;
+          return w ? parseInt(w) : null;
+        },
+        renderHTML: attrs =>
+          attrs.width ? { width: String(attrs.width), style: `width: ${attrs.width}px` } : {},
+      },
+    };
+  },
+  addNodeView() {
+    return ReactNodeViewRenderer(ResizableImageView);
+  },
+});
+
+// ── Main Editor Component ──────────────────────────────────
 interface WysiwygEditorProps {
   value: string;
   onChange: (val: string) => void;
@@ -23,33 +195,21 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Image.configure({ inline: false, allowBase64: true }),
+      ResizableImage.configure({ inline: false, allowBase64: true }),
       Link.configure({ openOnClick: false }),
-      Placeholder.configure({ placeholder: '내용을 Input하세요...' }),
+      Placeholder.configure({ placeholder: 'Write your content here...' }),
     ],
     content: value,
-    onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
-    },
+    onUpdate: ({ editor }) => onChange(editor.getHTML()),
   });
 
   if (!editor) return null;
 
   const ToolbarBtn = ({
-    onClick,
-    active,
-    title,
-    children,
-  }: {
-    onClick: () => void;
-    active?: boolean;
-    title: string;
-    children: React.ReactNode;
-  }) => (
+    onClick, active, title, children,
+  }: { onClick: () => void; active?: boolean; title: string; children: React.ReactNode }) => (
     <button
-      type="button"
-      onClick={onClick}
-      title={title}
+      type="button" onClick={onClick} title={title}
       style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         width: '30px', height: '30px', borderRadius: '5px', border: 'none',
@@ -63,7 +223,6 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
     </button>
   );
 
-  // 이미지 → 30% 크기 리사이즈 후 Editor 삽입 (품질 원본 유지)
   const resizeAndInsert = (src: string) => {
     const img = new window.Image();
     img.onload = () => {
@@ -72,10 +231,8 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
       canvas.height = Math.round(img.naturalHeight * 0.3);
       const ctx = canvas.getContext('2d')!;
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      // 원본 포맷 유지 (PNG는 PNG, 그 and는 JPEG 무손실에 가깝게)
       const mime = src.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
-      const resized = canvas.toDataURL(mime);
-      editor.chain().focus().setImage({ src: resized }).run();
+      editor.chain().focus().setImage({ src: canvas.toDataURL(mime) }).run();
     };
     img.src = src;
   };
@@ -83,31 +240,19 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
   const handleImageFile = (file: File) => {
     if (!file.type.startsWith('image/')) return;
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const src = e.target?.result as string;
-      if (src) resizeAndInsert(src);
-    };
+    reader.onload = e => { const s = e.target?.result as string; if (s) resizeAndInsert(s); };
     reader.readAsDataURL(file);
   };
 
-  const handleImageUpload = () => {
-    fileInputRef.current?.click();
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleImageFile(file);
-    // 같은 파일 재선택 가능하도록 초기화
+    const f = e.target.files?.[0];
+    if (f) handleImageFile(f);
     e.target.value = '';
   };
 
-  // 드래그 앤 드롭 이미지 처리
   const handleDrop = (e: React.DragEvent) => {
-    const file = e.dataTransfer.files?.[0];
-    if (file?.type.startsWith('image/')) {
-      e.preventDefault();
-      handleImageFile(file);
-    }
+    const f = e.dataTransfer.files?.[0];
+    if (f?.type.startsWith('image/')) { e.preventDefault(); handleImageFile(f); }
   };
 
   const addLink = () => {
@@ -123,25 +268,12 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
     <div
       style={{ border: '1px solid var(--border)', borderRadius: '10px', overflow: 'hidden', background: 'var(--bg-card)' }}
       onDrop={handleDrop}
-      onDragOver={(e) => e.preventDefault()}
+      onDragOver={e => e.preventDefault()}
     >
-      {/* 숨겨진 파일 Input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        style={{ display: 'none' }}
-        onChange={handleFileChange}
-      />
+      <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
 
       {/* Toolbar */}
-      <div
-        style={{
-          display: 'flex', flexWrap: 'wrap', gap: '2px',
-          padding: '8px 12px', borderBottom: '1px solid var(--border)',
-          background: 'var(--bg-secondary)', alignItems: 'center',
-        }}
-      >
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2px', padding: '8px 12px', borderBottom: '1px solid var(--border)', background: 'var(--bg-secondary)', alignItems: 'center' }}>
         <ToolbarBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} title="Bold"><Bold size={14} /></ToolbarBtn>
         <ToolbarBtn onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} title="Italic"><Italic size={14} /></ToolbarBtn>
         <ToolbarBtn onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} title="Strikethrough"><Strikethrough size={14} /></ToolbarBtn>
@@ -158,20 +290,17 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
         <ToolbarBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} active={false} title="Divider"><Minus size={14} /></ToolbarBtn>
         <Divider />
         <ToolbarBtn onClick={addLink} active={editor.isActive('link')} title="Link"><LinkIcon size={14} /></ToolbarBtn>
-
-        <ToolbarBtn onClick={handleImageUpload} active={false} title="Upload image"><ImageIcon size={14} /></ToolbarBtn>
-
+        <ToolbarBtn onClick={() => fileInputRef.current?.click()} active={false} title="Upload image"><ImageIcon size={14} /></ToolbarBtn>
         <Divider />
         <ToolbarBtn onClick={() => editor.chain().focus().undo().run()} active={false} title="Undo"><Undo size={14} /></ToolbarBtn>
         <ToolbarBtn onClick={() => editor.chain().focus().redo().run()} active={false} title="Redo"><Redo size={14} /></ToolbarBtn>
       </div>
 
-      {/* Drag & drop hint */}
+      {/* Hint */}
       <div style={{ padding: '4px 14px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-        Drag & drop an image or use the toolbar button to upload
+        Drag & drop or upload an image · Click image to select, then drag the right handle to resize
       </div>
 
-      {/* Editor */}
       <EditorContent editor={editor} />
     </div>
   );
