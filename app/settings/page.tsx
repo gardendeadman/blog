@@ -41,22 +41,22 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; msg: string } | null>(null);
 
-  // 프로필 이미지
+  // Profile image
   const [profileImage, setProfileImage] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
   const profileInputRef = useRef<HTMLInputElement>(null);
 
-  // Blog 이름
+  // Blog name
   const [blogName, setBlogName] = useState('Blog');
   const [blogNameInput, setBlogNameInput] = useState('Blog');
   const [savingName, setSavingName] = useState(false);
 
-  // About글
+  // Bio
   const [bio, setBio] = useState('');
   const [bioInput, setBioInput] = useState('');
   const [savingBio, setSavingBio] = useState(false);
 
-  // 테마 컬러
+  // Theme color
   const [accentColor, setAccentColor] = useState('#d4622a');
   const [accentInput, setAccentInput] = useState('#d4622a');
   const [savingColor, setSavingColor] = useState(false);
@@ -113,7 +113,7 @@ export default function SettingsPage() {
     }
   };
 
-  // ── 프로필 이미지 업로드 ────────────────────────────────
+  // ── Profile image 업로드 ────────────────────────────────
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !file.type.startsWith('image/')) return;
@@ -137,9 +137,9 @@ export default function SettingsPage() {
         try {
           await upsertSettings({ profile_image: resized });
           setProfileImage(resized);
-          showStatus('success', '프로필 이미지가 Save됐습니다. 파비콘은 페이지 새로고침 후 반영됩니다.');
+          showStatus('success', 'Profile image saved. Favicon updates after refresh.');
         } catch (e: any) {
-          showStatus('error', 'Save 실패: ' + e.message);
+          showStatus('error', 'Save failed: ' + e.message);
         }
         setSavingProfile(false);
       };
@@ -161,7 +161,7 @@ export default function SettingsPage() {
     setSavingProfile(false);
   };
 
-  // ── Blog 이름 Save ───────────────────────────────────
+  // ── Blog name Save ───────────────────────────────────
   const handleSaveBlogName = async () => {
     const trimmed = blogNameInput.trim();
     if (!trimmed) { showStatus('error', 'Please enter a blog name.'); return; }
@@ -169,27 +169,27 @@ export default function SettingsPage() {
     try {
       await upsertSettings({ blog_name: trimmed });
       setBlogName(trimmed);
-      showStatus('success', 'Blog 이름이 Save됐습니다.');
+      showStatus('success', 'Blog name saved.');
     } catch (e: any) {
-      showStatus('error', 'Save 실패: ' + e.message);
+      showStatus('error', 'Save failed: ' + e.message);
     }
     setSavingName(false);
   };
 
-  // ── About글 Save ───────────────────────────────────────
+  // ── Bio Save ───────────────────────────────────────
   const handleSaveBio = async () => {
     setSavingBio(true);
     try {
       await upsertSettings({ bio: bioInput });
       setBio(bioInput);
-      showStatus('success', 'About글이 Save됐습니다.');
+      showStatus('success', 'Bio saved.');
     } catch (e: any) {
-      showStatus('error', 'Save 실패: ' + e.message);
+      showStatus('error', 'Save failed: ' + e.message);
     }
     setSavingBio(false);
   };
 
-  // ── 테마 컬러 Save ─────────────────────────────────────
+  // ── Theme color Save ─────────────────────────────────────
   const handleSaveColor = async () => {
     const hex = accentInput.trim();
     if (!/^#[0-9a-fA-F]{6}$/.test(hex)) {
@@ -200,16 +200,16 @@ export default function SettingsPage() {
       await upsertSettings({ accent_color: hex });
       setAccentColor(hex);
       applyAccent(hex); // Save 즉시 페이지에 반영
-      showStatus('success', '테마 컬러가 Save됐습니다.');
+      showStatus('success', 'Theme color saved.');
     } catch (e: any) {
-      showStatus('error', 'Save 실패: ' + e.message);
+      showStatus('error', 'Save failed: ' + e.message);
     }
     setSavingColor(false);
   };
 
   const handlePreviewColor = (hex: string) => {
     setAccentInput(hex);
-    applyAccent(hex); // 선택 즉시 미리보기
+    applyAccent(hex); // 선택 즉시 Preview
   };
 
   // ── 백업 ───────────────────────────────────────────────
@@ -234,7 +234,7 @@ export default function SettingsPage() {
     setExporting(false);
   };
 
-  // ── 파일 선택 → 미리보기 ──────────────────────────────
+  // ── 파일 선택 → Preview ──────────────────────────────
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -339,7 +339,7 @@ export default function SettingsPage() {
 
       <main className="max-w-4xl mx-auto px-6 py-10">
 
-        {/* 상태 메시지 */}
+        {/* Status message */}
         {status && (
           <div className="animate-fade-in" style={{
             marginBottom: '20px', padding: '12px 16px', borderRadius: '8px',
@@ -367,14 +367,14 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* 프로필 이미지 */}
+        {/* Profile image */}
         <div style={card}>
           <h2 style={sectionTitle}>🖼️ Profile Image</h2>
           <p style={sectionDesc}>
-            About 페이지 아바타와 브라우저 파비콘에 사용됩니다. 정사각형 이미지를 권장합니다.
+            Used as avatar on the About page and browser favicon. Square image recommended.
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            {/* 미리보기 */}
+            {/* Preview */}
             <div style={{
               width: '80px', height: '80px', borderRadius: '50%',
               background: 'var(--accent-subtle)', border: '2px solid var(--accent)',
@@ -382,12 +382,12 @@ export default function SettingsPage() {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               {profileImage ? (
-                <img src={profileImage} alt="프로필" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
                 <UserCircle2 size={40} style={{ color: 'var(--accent)', opacity: 0.5 }} />
               )}
             </div>
-            {/* 버튼들 */}
+            {/* Buttons */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <input
                 ref={profileInputRef}
@@ -416,11 +416,11 @@ export default function SettingsPage() {
             </div>
           </div>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '12px' }}>
-            💡 파비콘은 Save 후 브라우저 새로고침(Ctrl+Shift+R) 시 반영됩니다.
+            💡 Favicon updates after a hard refresh (Ctrl+Shift+R).
           </p>
         </div>
 
-        {/* Blog 이름 */}
+        {/* Blog name */}
         <div style={card}>
           <h2 style={sectionTitle}>✏️ Blog Name</h2>
           <p style={sectionDesc}>
@@ -446,16 +446,16 @@ export default function SettingsPage() {
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>{blogNameInput.length} / 40chars</div>
         </div>
 
-        {/* About글 */}
+        {/* Bio */}
         <div style={{ ...card, padding: 0, overflow: 'hidden' }}>
-          {/* 헤더 */}
+          {/* Header */}
           <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--border)' }}>
-            <h2 style={sectionTitle}>📝 About글</h2>
+            <h2 style={sectionTitle}>📝 Bio</h2>
             <p style={{ ...sectionDesc, marginBottom: 0 }}>
-              About 페이지에 표시됩니다. 마크다운 문법을 사용할 수 있습니다.
+              Displayed on the About page. Markdown is supported.
             </p>
           </div>
-          {/* 마크다운 Editor — 전체 너비 */}
+          {/* Markdown editor — full width */}
           <div data-color-mode="auto" style={{ width: '100%' }}>
             <MDEditor
               value={bioInput}
@@ -465,7 +465,7 @@ export default function SettingsPage() {
               style={{ width: '100%', borderRadius: 0, border: 'none' }}
             />
           </div>
-          {/* 푸터 */}
+          {/* Footer */}
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '12px 20px', borderTop: '1px solid var(--border)',
@@ -485,7 +485,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* 테마 컬러 */}
+        {/* Theme color */}
         <div style={card}>
           <h2 style={sectionTitle}>🎨 Theme Color</h2>
           <p style={sectionDesc}>
@@ -496,7 +496,7 @@ export default function SettingsPage() {
             </span>
           </p>
 
-          {/* 프리셋 팔레트 */}
+          {/* Preset palette */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
             {PRESET_COLORS.map((c) => (
               <button
@@ -521,10 +521,10 @@ export default function SettingsPage() {
             ))}
           </div>
 
-          {/* 직접 입력 */}
+          {/* Custom input */}
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            {/* 컬러 피커 */}
-            <label style={{ position: 'relative', cursor: 'pointer' }} title="컬러 피커 열기">
+            {/* Color picker */}
+            <label style={{ position: 'relative', cursor: 'pointer' }} title="Open color picker">
               <input
                 type="color"
                 value={accentInput}
@@ -541,7 +541,7 @@ export default function SettingsPage() {
               </span>
             </label>
 
-            {/* HEX 직접 입력 */}
+            {/* HEX Custom input */}
             <input
               type="text"
               value={accentInput}
@@ -560,23 +560,23 @@ export default function SettingsPage() {
               {savingColor ? 'Saving...' : 'Save'}
             </button>
 
-            {/* 미리보기 변경된 경우 리셋 */}
+            {/* Preview 변경된 경우 리셋 */}
             {accentInput !== accentColor && (
               <button
                 onClick={() => handlePreviewColor(accentColor)}
                 style={{ ...btn('secondary') as any, padding: '9px 12px' }}
-                title="원래 색상으로"
+                title="Reset color"
               >
                 Reset
               </button>
             )}
           </div>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '10px' }}>
-            💡 색상을 선택하면 즉시 미리보기가 적용됩니다. Save 버튼을 눌러야 영구 반영됩니다.
+            💡 Changes preview instantly. Click Save to apply permanently.
           </p>
         </div>
 
-        {/* 포스트 백업 */}
+        {/* Post backup */}
         <div style={card}>
           <h2 style={sectionTitle}>📦 Backup Posts</h2>
           <p style={sectionDesc}>Export all posts as a JSON file.</p>
@@ -586,7 +586,7 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        {/* 포스트 가져오기 */}
+        {/* Import posts */}
         <div style={card}>
           <h2 style={sectionTitle}>📥 Import Posts (Migration)</h2>
           <p style={sectionDesc}>Import a previously exported JSON backup.</p>
@@ -620,7 +620,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* 위험 구역 */}
+        {/* Danger zone */}
         <div style={{ ...card, border: '1px solid #fca5a5', background: '#fff5f5' }}>
           <h2 style={{ ...sectionTitle, color: '#dc2626' }}>⚠️ Danger Zone</h2>
           <p style={{ ...sectionDesc, color: '#ef4444' }}>These actions cannot be undone. Please backup first.</p>

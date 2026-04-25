@@ -25,7 +25,7 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
       StarterKit,
       Image.configure({ inline: false, allowBase64: true }),
       Link.configure({ openOnClick: false }),
-      Placeholder.configure({ placeholder: '내용을 입력하세요...' }),
+      Placeholder.configure({ placeholder: '내용을 Input하세요...' }),
     ],
     content: value,
     onUpdate: ({ editor }) => {
@@ -111,7 +111,7 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
   };
 
   const addLink = () => {
-    const url = prompt('링크 URL을 입력하세요:');
+    const url = prompt('Enter link URL:');
     if (url) editor.chain().focus().setLink({ href: url }).run();
   };
 
@@ -125,7 +125,7 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
       onDrop={handleDrop}
       onDragOver={(e) => e.preventDefault()}
     >
-      {/* 숨겨진 파일 입력 */}
+      {/* 숨겨진 파일 Input */}
       <input
         ref={fileInputRef}
         type="file"
@@ -142,31 +142,31 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
           background: 'var(--bg-secondary)', alignItems: 'center',
         }}
       >
-        <ToolbarBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} title="굵게"><Bold size={14} /></ToolbarBtn>
-        <ToolbarBtn onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} title="기울임"><Italic size={14} /></ToolbarBtn>
-        <ToolbarBtn onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} title="Cancel선"><Strikethrough size={14} /></ToolbarBtn>
-        <ToolbarBtn onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive('code')} title="인라인 코드"><Code size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} title="Bold"><Bold size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} title="Italic"><Italic size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} title="Strikethrough"><Strikethrough size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive('code')} title="Inline code"><Code size={14} /></ToolbarBtn>
         <Divider />
-        <ToolbarBtn onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={editor.isActive('heading', { level: 1 })} title="제목 1"><Heading1 size={14} /></ToolbarBtn>
-        <ToolbarBtn onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive('heading', { level: 2 })} title="제목 2"><Heading2 size={14} /></ToolbarBtn>
-        <ToolbarBtn onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive('heading', { level: 3 })} title="제목 3"><Heading3 size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={editor.isActive('heading', { level: 1 })} title="Heading 1"><Heading1 size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive('heading', { level: 2 })} title="Heading 2"><Heading2 size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive('heading', { level: 3 })} title="Heading 3"><Heading3 size={14} /></ToolbarBtn>
         <Divider />
-        <ToolbarBtn onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} title="글머리 기호"><List size={14} /></ToolbarBtn>
-        <ToolbarBtn onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')} title="번호 목록"><ListOrdered size={14} /></ToolbarBtn>
-        <ToolbarBtn onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} title="인용"><Quote size={14} /></ToolbarBtn>
-        <ToolbarBtn onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive('codeBlock')} title="코드 블록"><Code2 size={14} /></ToolbarBtn>
-        <ToolbarBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} active={false} title="구분선"><Minus size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} title="Bullet list"><List size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')} title="Ordered list"><ListOrdered size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} title="Blockquote"><Quote size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive('codeBlock')} title="Code block"><Code2 size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} active={false} title="Divider"><Minus size={14} /></ToolbarBtn>
         <Divider />
-        <ToolbarBtn onClick={addLink} active={editor.isActive('link')} title="링크"><LinkIcon size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={addLink} active={editor.isActive('link')} title="Link"><LinkIcon size={14} /></ToolbarBtn>
 
-        <ToolbarBtn onClick={handleImageUpload} active={false} title="이미지 업로드"><ImageIcon size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={handleImageUpload} active={false} title="Upload image"><ImageIcon size={14} /></ToolbarBtn>
 
         <Divider />
-        <ToolbarBtn onClick={() => editor.chain().focus().undo().run()} active={false} title="실행 Cancel"><Undo size={14} /></ToolbarBtn>
-        <ToolbarBtn onClick={() => editor.chain().focus().redo().run()} active={false} title="다시 실행"><Redo size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().undo().run()} active={false} title="Undo"><Undo size={14} /></ToolbarBtn>
+        <ToolbarBtn onClick={() => editor.chain().focus().redo().run()} active={false} title="Redo"><Redo size={14} /></ToolbarBtn>
       </div>
 
-      {/* 드래그 드롭 안내 */}
+      {/* Drag & drop hint */}
       <div style={{ padding: '4px 14px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
         Drag & drop an image or use the toolbar button to upload
       </div>

@@ -170,7 +170,7 @@ function WritePageInner() {
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: 'var(--text-muted)' }}>불러오는 중...</div>
+        <div style={{ color: 'var(--text-muted)' }}>Loading...</div>
       </div>
     );
   }
@@ -214,7 +214,7 @@ function WritePageInner() {
             </div>
           )}
 
-          {/* ① 제목 */}
+          {/* ① Title */}
           <input
             type="text"
             placeholder="Enter title"
@@ -234,7 +234,7 @@ function WritePageInner() {
             }}
           />
 
-          {/* ② Editor 타입 토글 + Public 여부 */}
+          {/* ② Editor type toggle + visibility */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Editor
@@ -270,12 +270,12 @@ function WritePageInner() {
                 }}
               >
                 {published ? <Eye size={13} /> : <EyeOff size={13} />}
-                {published ? 'Public' : '비Public'}
+                {published ? 'Public' : 'Private'}
               </button>
             </div>
           </div>
 
-          {/* ③ Editor 본문 */}
+          {/* ③ Editor content */}
           {contentType === 'wysiwyg' ? (
             <WysiwygEditor value={content} onChange={setContent} />
           ) : (
@@ -291,7 +291,7 @@ function WritePageInner() {
               background: 'var(--bg-card)',
             }}
           >
-            {/* 헤더 */}
+            {/* Header */}
             <div
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -329,7 +329,7 @@ function WritePageInner() {
               </label>
             </div>
 
-            {/* 첨부 파일 목록 */}
+            {/* Attachment list */}
             {attachments.length > 0 && (
               <div style={{ padding: '8px 0' }}>
                 {attachments.map((f, i) => (
@@ -367,7 +367,7 @@ function WritePageInner() {
               </div>
             )}
 
-            {/* 비어있을 때 드롭존 */}
+            {/* Empty dropzone */}
             {attachments.length === 0 && (
               <div
                 style={{
@@ -382,7 +382,7 @@ function WritePageInner() {
             )}
           </div>
 
-          {/* ⑤ Tags (최하단) */}
+          {/* ⑤ Tags (bottom) */}
           <div
             style={{
               border: '1px solid var(--border)',
@@ -395,7 +395,7 @@ function WritePageInner() {
               <TagIcon size={13} />
               Tags
             </div>
-            {/* 태그 목록 */}
+            {/* Tag list */}
             {tags.length > 0 && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
                 {tags.map((tag) => (
@@ -414,7 +414,7 @@ function WritePageInner() {
                 ))}
               </div>
             )}
-            {/* 입력 */}
+            {/* Input */}
             <div style={{ display: 'flex', gap: '8px' }}>
               <input
                 type="text"

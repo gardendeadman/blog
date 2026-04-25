@@ -10,7 +10,7 @@ interface Props {
 export default function DynamicHead({ blogName, profileImage }: Props) {
   useEffect(() => {
     // 타이틀 업데이트
-    if (document.title === '블로그' || !document.title) {
+    if (document.title === 'Blog' || !document.title) {
       document.title = blogName;
     }
 

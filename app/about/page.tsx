@@ -23,7 +23,7 @@ export default async function AboutPage() {
           borderRadius: '16px',
           padding: '48px',
         }}>
-          {/* 아바타 */}
+          {/* Avatar */}
           <div style={{
             width: '80px', height: '80px', borderRadius: '50%',
             background: 'var(--accent-subtle)', border: '2px solid var(--accent)',
@@ -32,12 +32,12 @@ export default async function AboutPage() {
             marginBottom: '24px', fontSize: '2rem', flexShrink: 0,
           }}>
             {profileImage
-              ? <img src={profileImage} alt="프로필" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ? <img src={profileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               : '✍️'
             }
           </div>
 
-          {/* Blog 이름 */}
+          {/* Blog name */}
           <h1 style={{
             fontFamily: 'var(--font-display)',
             fontSize: '2rem', fontWeight: 700,
@@ -46,14 +46,14 @@ export default async function AboutPage() {
             {blogName}
           </h1>
 
-          {/* 구분선 */}
+          {/* Divider */}
           <div style={{
             height: '3px', width: '40px',
             background: 'var(--accent)', borderRadius: '2px',
             marginBottom: '28px',
           }} />
 
-          {/* About글 */}
+          {/* Bio */}
           {bio ? (
             <div className="post-content" style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{bio}</ReactMarkdown>
@@ -61,7 +61,7 @@ export default async function AboutPage() {
           ) : (
             <div style={{ color: 'var(--text-muted)', fontSize: '0.925rem', lineHeight: 1.8 }}>
               <p>Welcome to <strong style={{ color: 'var(--text)' }}>{blogName}</strong>.</p>
-              <p style={{ marginTop: '8px' }}>Settings 화면에서 About글을 작성할 수 있습니다.</p>
+              <p style={{ marginTop: '8px' }}>Write your bio in Settings.</p>
             </div>
           )}
 

@@ -38,7 +38,7 @@ export default function NotFound() {
         Page Not Found
       </h1>
       <p style={{ color: 'var(--text-muted)', fontSize: '0.925rem' }}>
-        요청하신 페이지가 존재하지 않거나 Delete되었습니다.
+        The page you requested does not exist or has been removed.
       </p>
       <Link
         href="/"
@@ -53,7 +53,7 @@ export default function NotFound() {
           fontWeight: 600,
         }}
       >
-        홈으로 Back
+        Go to Home
       </Link>
     </div>
   );

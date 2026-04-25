@@ -25,7 +25,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      setError('Email 또는 Password가 올바르지 않습니다.');
+      setError('Invalid email or password.');
       setLoading(false);
     } else {
       router.push('/');
@@ -81,7 +81,7 @@ export default function LoginPage() {
             Blog
           </Link>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '8px' }}>
-            관리chars Sign in
+            Admin Sign In
           </p>
         </div>
 
@@ -191,7 +191,7 @@ export default function LoginPage() {
             }}
           >
             <LogIn size={16} />
-            {loading ? 'Sign in 중...' : 'Sign in'}
+            {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
 

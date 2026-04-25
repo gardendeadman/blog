@@ -73,7 +73,7 @@ export default async function Home({
             ) : (
               <div style={{ textAlign: 'center', padding: '80px 40px', color: 'var(--text-muted)', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', marginBottom: '8px', color: 'var(--text-secondary)' }}>
-                  아직 No posts yet
+                  No posts yet
                 </div>
                 <div style={{ fontSize: '0.9rem' }}>Write your first post.</div>
               </div>

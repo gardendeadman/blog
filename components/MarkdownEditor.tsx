@@ -29,7 +29,7 @@ export default function MarkdownEditor({ value, onChange }: MarkdownEditorProps)
           textAlign: 'center',
         }}
       >
-        에디터 로딩 중...
+        Loading editor...
       </div>
     );
   }

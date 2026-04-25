@@ -21,7 +21,7 @@ export default function DeleteModal({
 
   return (
     <>
-      {/* 오버레이 */}
+      {/* Overlay */}
       <div
         onClick={onCancel}
         style={{
@@ -32,7 +32,7 @@ export default function DeleteModal({
         }}
       />
 
-      {/* 모달 */}
+      {/* Modal */}
       <div
         style={{
           position: 'fixed', inset: 0, zIndex: 101,
@@ -52,7 +52,7 @@ export default function DeleteModal({
             animation: 'fadeIn 0.2s ease',
           }}
         >
-          {/* 헤더 */}
+          {/* Header */}
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{
@@ -81,7 +81,7 @@ export default function DeleteModal({
             </button>
           </div>
 
-          {/* 본문 */}
+          {/* Body */}
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '8px' }}>
             This action cannot be undone.
           </p>

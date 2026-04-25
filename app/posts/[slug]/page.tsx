@@ -57,7 +57,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
           {post.title}
         </h1>
 
-        {/* Meta + 수정/Delete 버튼 */}
+        {/* Meta + Edit/Delete buttons */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', paddingBottom: '24px', borderBottom: '1px solid var(--border)', marginBottom: '40px' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
             <Clock size={13} />
@@ -71,11 +71,11 @@ export default async function PostPage({ params }: { params: { slug: string } })
           )}
           {!post.published && (
             <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#d97706', background: '#fef3c7', padding: '2px 10px', borderRadius: '20px' }}>
-              비Public
+              Private
             </span>
           )}
 
-          {/* 수정/Delete — 클라이언트 컴포넌트로 분리 */}
+          {/* Edit/Delete — separated as client component */}
           {isOwner && (
             <PostActions postId={post.id} postTitle={post.title} />
           )}
