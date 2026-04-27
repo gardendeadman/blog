@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import DeleteModal from '@/components/DeleteModal';
+import { extractFirstImage } from '@/lib/extractFirstImage';
 
 interface PostCardProps {
   post: Post;
@@ -32,7 +33,9 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
     new Date(post.updated_at).getTime() - new Date(post.created_at).getTime() > 5000;
 
   const [imgError, setImgError] = useState(false);
-  const thumbnail = !imgError ? (post.thumbnail || null) : null;
+  const thumbnail = !imgError
+    ? (post.thumbnail || (post.content ? extractFirstImage(post.content, post.content_type ?? 'wysiwyg') : null))
+    : null;
 
   return (
     <>

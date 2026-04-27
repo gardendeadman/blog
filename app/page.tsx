@@ -31,10 +31,10 @@ export default async function Home({
   if (!isLoggedIn) sidebarQuery = sidebarQuery.eq('published', true);
   const { data: allPosts } = await sidebarQuery;
 
-  // Fetch main posts (with tag filter) - content 제외하고 thumbnail 포함
+  // Fetch main posts (with tag filter)
   let mainQuery = supabase
     .from('posts')
-    .select('id, title, slug, excerpt, tags, published, created_at, updated_at, user_id, content_type, thumbnail, attachments')
+    .select('id, title, slug, excerpt, tags, published, created_at, updated_at, user_id, content_type, thumbnail, attachments, content')
     .order('created_at', { ascending: false });
   if (!isLoggedIn) mainQuery = mainQuery.eq('published', true);
   if (selectedTag) mainQuery = mainQuery.contains('tags', [selectedTag]);

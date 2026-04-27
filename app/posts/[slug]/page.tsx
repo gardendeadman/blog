@@ -7,6 +7,7 @@ import GNB from '@/components/GNB';
 import PostContent from '@/components/PostContent';
 import PostActions from '@/components/PostActions';
 import { getBlogSettings } from '@/lib/blogSettings';
+import { extractFirstImage } from '@/lib/extractFirstImage';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +28,18 @@ export default async function PostPage({ params }: { params: { slug: string } })
 
   if (!post) notFound();
   if (!post.published && !isLoggedIn) notFound();
+
+  // thumbnail이 없으면 content에서 추출해서 저장 (기존 포스트 소급 처리)
+  if (!post.thumbnail && post.content) {
+    const thumb = extractFirstImage(post.content, post.content_type);
+    if (thumb) {
+      await supabase
+        .from('posts')
+        .update({ thumbnail: thumb })
+        .eq('id', post.id);
+      post.thumbnail = thumb;
+    }
+  }
 
   const isEdited =
     new Date(post.updated_at).getTime() - new Date(post.created_at).getTime() > 5000;
