@@ -24,6 +24,7 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
   const [copied, setCopied] = useState(false);
   const handleShare = async (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     const url = `${window.location.origin}/posts/${encodeURIComponent(post.slug)}`;
     try {
       if (navigator.share) {
@@ -71,7 +72,6 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
           borderRadius: '12px',
           padding: '20px',
           transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-          cursor: 'pointer',
         }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent)';
@@ -82,7 +82,7 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
           (e.currentTarget as HTMLElement).style.boxShadow = 'none';
         }}
       >
-        <Link href={`/posts/${encodeURIComponent(post.slug)}`} style={{ textDecoration: 'none' }}>
+        <Link href={`/posts/${encodeURIComponent(post.slug)}`} style={{ textDecoration: 'none', display: 'block', cursor: 'pointer' }}>
           <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
 
             {/* Thumbnail */}
