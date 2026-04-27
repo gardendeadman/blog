@@ -8,7 +8,6 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import DeleteModal from '@/components/DeleteModal';
-import { extractFirstImage } from '@/lib/extractFirstImage';
 
 interface PostCardProps {
   post: Post;
@@ -21,8 +20,6 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
   const supabase = createClient();
   const [showModal, setShowModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [imgError, setImgError] = useState(false);
-
   const handleDelete = async () => {
     setDeleting(true);
     await supabase.from('posts').delete().eq('id', post.id);
@@ -34,9 +31,8 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
   const isEdited =
     new Date(post.updated_at).getTime() - new Date(post.created_at).getTime() > 5000;
 
-  const thumbnail = !imgError
-    ? extractFirstImage(post.content, post.content_type)
-    : null;
+  const [imgError, setImgError] = useState(false);
+  const thumbnail = !imgError ? (post.thumbnail || null) : null;
 
   return (
     <>

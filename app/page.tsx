@@ -31,10 +31,10 @@ export default async function Home({
   if (!isLoggedIn) sidebarQuery = sidebarQuery.eq('published', true);
   const { data: allPosts } = await sidebarQuery;
 
-  // Fetch main posts (with tag filter)
+  // Fetch main posts (with tag filter) - content 제외하고 thumbnail 포함
   let mainQuery = supabase
     .from('posts')
-    .select('*')
+    .select('id, title, slug, excerpt, tags, published, created_at, updated_at, user_id, content_type, thumbnail, attachments')
     .order('created_at', { ascending: false });
   if (!isLoggedIn) mainQuery = mainQuery.eq('published', true);
   if (selectedTag) mainQuery = mainQuery.contains('tags', [selectedTag]);
@@ -58,7 +58,7 @@ export default async function Home({
 
         <div className="layout-main" style={{ display: 'flex', gap: '28px', alignItems: 'flex-start' }}>
           {/* Main Posts */}
-          <div style={{ flex: 1, minWidth: 0, marginRight: 'calc(260px + 28px)' }} className="posts-main-area">
+          <div style={{ flex: 1, minWidth: 0 }}>
             {posts && posts.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {posts.map((post: Post, i: number) => (

@@ -10,6 +10,7 @@ export interface Post {
   user_id: string;
   slug: string;
   excerpt?: string;
+  thumbnail?: string;
 }
 
 export interface Tag {
