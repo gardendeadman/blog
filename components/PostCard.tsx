@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { formatKST } from '@/lib/formatDate';
-import { Clock, RefreshCw, Pencil, Trash2 } from 'lucide-react';
+import { Clock, RefreshCw, Pencil, Trash2, Share2, Check } from 'lucide-react';
 import { Post } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -21,6 +21,21 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
   const supabase = createClient();
   const [showModal, setShowModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const handleShare = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const url = `${window.location.origin}/posts/${encodeURIComponent(post.slug)}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: post.title, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch {}
+  };
+
   const handleDelete = async () => {
     setDeleting(true);
     await supabase.from('posts').delete().eq('id', post.id);
@@ -141,25 +156,37 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
           </div>
         </Link>
 
-        {/* Owner Actions */}
-        {isOwner && (
-          <div className="flex gap-2 mt-4 pt-4 flex-wrap" style={{ borderTop: '1px solid var(--border)' }}>
-            <Link
-              href={`/write?id=${post.id}`}
-              style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-muted)', textDecoration: 'none', padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border)', transition: 'all 0.15s ease' }}
-              className="hover:text-accent hover:border-accent"
-            >
-              <Pencil size={12} /> Edit
-            </Link>
-            <button
-              onClick={(e) => { e.preventDefault(); setShowModal(true); }}
-              style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-muted)', background: 'transparent', padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.15s ease', fontFamily: 'var(--font-pretendard)' }}
-              className="hover:text-red-500 hover:border-red-400"
-            >
-              <Trash2 size={12} /> Delete
-            </button>
-          </div>
-        )}
+        {/* Actions bar — share always visible, edit/delete only for owner */}
+        <div className="flex gap-2 mt-4 pt-4 flex-wrap" style={{ borderTop: '1px solid var(--border)' }}>
+          {/* Share */}
+          <button
+            onClick={handleShare}
+            style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: copied ? 'var(--accent)' : 'var(--text-muted)', background: 'transparent', padding: '4px 10px', borderRadius: '6px', border: `1px solid ${copied ? 'var(--accent)' : 'var(--border)'}`, cursor: 'pointer', transition: 'all 0.15s ease', fontFamily: 'var(--font-pretendard)' }}
+          >
+            {copied ? <Check size={12} /> : <Share2 size={12} />}
+            {copied ? 'Copied!' : 'Share'}
+          </button>
+
+          {/* Owner only */}
+          {isOwner && (
+            <>
+              <Link
+                href={`/write?id=${post.id}`}
+                style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-muted)', textDecoration: 'none', padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border)', transition: 'all 0.15s ease' }}
+                className="hover:text-accent hover:border-accent"
+              >
+                <Pencil size={12} /> Edit
+              </Link>
+              <button
+                onClick={(e) => { e.preventDefault(); setShowModal(true); }}
+                style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-muted)', background: 'transparent', padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.15s ease', fontFamily: 'var(--font-pretendard)' }}
+                className="hover:text-red-500 hover:border-red-400"
+              >
+                <Trash2 size={12} /> Delete
+              </button>
+            </>
+          )}
+        </div>
       </article>
     </>
   );
