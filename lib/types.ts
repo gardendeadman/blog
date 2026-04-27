@@ -1,7 +1,7 @@
 export interface Post {
   id: string;
   title: string;
-  content: string;
+  content?: string;
   content_type: 'wysiwyg' | 'markdown';
   tags: string[];
   published: boolean;
