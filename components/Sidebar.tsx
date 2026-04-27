@@ -27,9 +27,11 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const todayKST = new Date(Date.now() + 9 * 60 * 60 * 1000)
-          .toISOString()
-          .slice(0, 10); // "YYYY-MM-DD"
+        // KST 기준 오늘 날짜 계산 (매 호출마다 새로 계산)
+        const todayKST = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Seoul',
+          year: 'numeric', month: '2-digit', day: '2-digit',
+        }).format(new Date()); // "YYYY-MM-DD"
         const todayStart = `${todayKST}T00:00:00+09:00`;
 
         const [todayRes, totalRes] = await Promise.all([
@@ -51,7 +53,23 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
         });
       } catch {}
     };
+
+    // 최초 로드
     fetchStats();
+
+    // 5분마다 자동 갱신 (날짜 변경 + 새 방문자 반영)
+    const interval = setInterval(fetchStats, 5 * 60 * 1000);
+
+    // 탭이 다시 활성화될 때도 갱신 (자리 비웠다가 돌아왔을 때)
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') fetchStats();
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -81,12 +99,7 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
         border: '1px solid var(--border)',
         borderRadius: '12px',
         overflow: 'hidden',
-        position: 'fixed',
-        top: '80px',
-        right: 'max(calc((100vw - 1152px) / 2 + 16px), 16px)',
-        height: 'calc(100vh - 96px)',
-        display: 'flex',
-        flexDirection: 'column',
+        height: 'fit-content',
       }}
       className="sidebar-wrapper"
     >
@@ -145,7 +158,7 @@ export default function Sidebar({ posts, isLoggedIn, selectedTag }: SidebarProps
       </div>
 
       {/* Post List */}
-      <div className="sidebar-post-list" style={{ flex: 1, overflowY: 'auto' }}>
+      <div className="sidebar-post-list" style={{ maxHeight: '65vh', overflowY: 'auto' }}>
         {posts.length === 0 ? (
           <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
             No posts yet

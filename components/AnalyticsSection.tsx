@@ -30,8 +30,12 @@ interface Overview {
 const DAYS = 14; // 최근 N일
 
 function kstDateStr(offsetDays = 0): string {
-  const d = new Date(Date.now() + 9 * 60 * 60 * 1000 - offsetDays * 86400000);
-  return d.toISOString().slice(0, 10);
+  // Intl 기반 KST 날짜 계산 — 서버/클라이언트 환경 무관
+  const d = new Date(Date.now() - offsetDays * 86400000);
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(d); // "YYYY-MM-DD"
 }
 
 export default function AnalyticsSection() {
