@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import DeleteModal from '@/components/DeleteModal';
+import { extractFirstImage } from '@/lib/extractFirstImage';
 
 interface PostCardProps {
   post: Post;
@@ -20,6 +21,7 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
   const supabase = createClient();
   const [showModal, setShowModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -31,6 +33,10 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
 
   const isEdited =
     new Date(post.updated_at).getTime() - new Date(post.created_at).getTime() > 5000;
+
+  const thumbnail = !imgError
+    ? extractFirstImage(post.content, post.content_type)
+    : null;
 
   return (
     <>
@@ -49,7 +55,7 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
           background: 'var(--bg-card)',
           border: '1px solid var(--border)',
           borderRadius: '12px',
-          padding: '20px 20px',
+          padding: '20px',
           transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
           cursor: 'pointer',
         }}
@@ -63,41 +69,76 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
         }}
       >
         <Link href={`/posts/${encodeURIComponent(post.slug)}`} style={{ textDecoration: 'none' }}>
-          {/* Tags */}
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {post.tags.map((tag) => (
-                <span key={tag} style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--accent)', background: 'var(--accent-subtle)', padding: '2px 10px', borderRadius: '20px', letterSpacing: '0.02em' }}>
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
 
-          {/* Title */}
-          <h2 className="post-title-mobile" style={{ fontFamily: 'var(--font-display)', fontSize: '1.375rem', fontWeight: 600, color: 'var(--text)', lineHeight: 1.4, marginBottom: '10px', letterSpacing: '-0.01em' }}>
-            {post.title}
-          </h2>
-
-          {/* Excerpt */}
-          {post.excerpt && (
-            <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '16px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-              {post.excerpt}
-            </p>
-          )}
-
-          {/* Meta */}
-          <div className="flex items-center gap-4 flex-wrap post-meta-wrap">
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              <Clock size={12} />
-              {formatKST(post.created_at)}
-            </span>
-            {isEdited && isOwner && (
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                <RefreshCw size={11} />
-                Updated: {formatKST(post.updated_at)}
-              </span>
+            {/* Thumbnail */}
+            {thumbnail && (
+              <div style={{
+                width: '100px',
+                height: '100px',
+                flexShrink: 0,
+                borderRadius: '8px',
+                overflow: 'hidden',
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--border)',
+              }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={thumbnail}
+                  alt=""
+                  onError={() => setImgError(true)}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block',
+                  }}
+                />
+              </div>
             )}
+
+            {/* Content */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {/* Tags */}
+              {post.tags && post.tags.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+                  {post.tags.map((tag) => (
+                    <span key={tag} style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--accent)', background: 'var(--accent-subtle)', padding: '2px 8px', borderRadius: '20px', letterSpacing: '0.02em' }}>
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Title */}
+              <h2
+                className="post-title-mobile"
+                style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 600, color: 'var(--text)', lineHeight: 1.4, marginBottom: '6px', letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: thumbnail ? 2 : 3, WebkitBoxOrient: 'vertical' }}
+              >
+                {post.title}
+              </h2>
+
+              {/* Excerpt */}
+              {post.excerpt && (
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '10px', display: '-webkit-box', WebkitLineClamp: thumbnail ? 1 : 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  {post.excerpt}
+                </p>
+              )}
+
+              {/* Meta */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  <Clock size={11} />
+                  {formatKST(post.created_at)}
+                </span>
+                {isEdited && isOwner && (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                    <RefreshCw size={10} />
+                    Updated: {formatKST(post.updated_at)}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
         </Link>
 
