@@ -98,9 +98,12 @@ export default async function PostPage({ params }: { params: { slug: string } })
           )}
 
           {/* Edit/Delete — separated as client component */}
-          {isOwner && (
-            <PostActions postId={post.id} postTitle={post.title} />
-          )}
+          <PostActions
+            postId={post.id}
+            postTitle={post.title}
+            postSlug={post.slug}
+            isOwner={isOwner}
+          />
         </div>
 
         {/* Content */}
