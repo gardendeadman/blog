@@ -57,6 +57,10 @@ export default function SettingsPage() {
   const [bioInput, setBioInput] = useState('');
   const [savingBio, setSavingBio] = useState(false);
 
+  // Guestbook
+  const [guestbookEnabled, setGuestbookEnabled] = useState(false);
+  const [savingGuestbook, setSavingGuestbook] = useState(false);
+
   // Theme color
   const [accentColor, setAccentColor] = useState('#d4622a');
   const [accentInput, setAccentInput] = useState('#d4622a');
@@ -178,6 +182,18 @@ export default function SettingsPage() {
   };
 
   // ── Bio Save ───────────────────────────────────────
+  const handleToggleGuestbook = async (val: boolean) => {
+    setSavingGuestbook(true);
+    try {
+      await upsertSettings({ guestbook_enabled: val });
+      setGuestbookEnabled(val);
+      showStatus('success', `Guestbook ${val ? 'enabled' : 'disabled'}.`);
+    } catch (e: any) {
+      showStatus('error', 'Save failed: ' + e.message);
+    }
+    setSavingGuestbook(false);
+  };
+
   const handleSaveBio = async () => {
     setSavingBio(true);
     try {
