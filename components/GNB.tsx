@@ -14,17 +14,36 @@ interface GNBProps {
   guestbookEnabled?: boolean;
 }
 
-export default function GNB({ isLoggedIn, blogName = 'Blog', hasBio = false, guestbookEnabled = false }: GNBProps) {
+export default function GNB({
+  isLoggedIn,
+  blogName = 'Blog',
+  hasBio = false,
+  guestbookEnabled: guestbookEnabledProp = false,
+}: GNBProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [guestbookEnabled, setGuestbookEnabled] = useState(guestbookEnabledProp);
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClient();
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  // Close menu on route change
+  // 설정 변경이 즉시 반영되도록 클라이언트에서 직접 조회
+  useEffect(() => {
+    supabase
+      .from('blog_settings')
+      .select('guestbook_enabled')
+      .limit(1)
+      .single()
+      .then(({ data }) => {
+        if (data) setGuestbookEnabled(data.guestbook_enabled ?? false);
+      });
+  }, [pathname]); // 페이지 이동 시마다 갱신
+
   useEffect(() => { setMenuOpen(false); }, [pathname]);
 
   const handleLogout = async () => {
@@ -52,12 +71,12 @@ export default function GNB({ isLoggedIn, blogName = 'Blog', hasBio = false, gue
             <NavLink href="/">Home</NavLink>
             <NavLink href="/tags">Tags</NavLink>
             {hasBio && <NavLink href="/about">About</NavLink>}
+            {guestbookEnabled && <NavLink href="/guestbook">Guestbook</NavLink>}
             {isLoggedIn && <NavLink href="/settings">Settings</NavLink>}
           </nav>
 
           {/* Right side */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {/* Theme Toggle */}
             {mounted && (
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -68,9 +87,7 @@ export default function GNB({ isLoggedIn, blogName = 'Blog', hasBio = false, gue
               </button>
             )}
 
-
-
-            {/* Hamburger — mobile only */}
+            {/* Hamburger */}
             <button
               className="gnb-nav-mobile"
               onClick={() => setMenuOpen(!menuOpen)}
@@ -86,11 +103,7 @@ export default function GNB({ isLoggedIn, blogName = 'Blog', hasBio = false, gue
       {/* Mobile Drawer */}
       {menuOpen && (
         <>
-          {/* Backdrop */}
-          <div
-            onClick={() => setMenuOpen(false)}
-            style={{ position: 'fixed', inset: 0, zIndex: 48, background: 'rgba(0,0,0,0.2)' }}
-          />
+          <div onClick={() => setMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 48, background: 'rgba(0,0,0,0.2)' }} />
           <nav className="mobile-menu">
             <MobileLink href="/" onClick={() => setMenuOpen(false)}>Home</MobileLink>
             <MobileLink href="/tags" onClick={() => setMenuOpen(false)}>Tags</MobileLink>
