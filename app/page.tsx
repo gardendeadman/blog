@@ -63,29 +63,14 @@ export default async function Home({
           <div style={{ flex: 1, minWidth: 0 }}>
             {posts && posts.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {posts.map((post: Post, i: number) => {
-                  // 핀 포스트와 일반 포스트 사이에 구분선 표시
-                  const prevPinned = i > 0 && posts[i - 1].pinned;
-                  const showDivider = prevPinned && !post.pinned;
-                  return (
-                    <div key={post.id}>
-                      {showDivider && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '4px 0' }}>
-                          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                            Posts
-                          </span>
-                          <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-                        </div>
-                      )}
-                      <PostCard
-                        post={post}
-                        isOwner={isLoggedIn && user?.id === post.user_id}
-                        index={i}
-                      />
-                    </div>
-                  );
-                })}
+                {posts.map((post: Post, i: number) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    isOwner={isLoggedIn && user?.id === post.user_id}
+                    index={i}
+                  />
+                ))}
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '80px 40px', color: 'var(--text-muted)', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px' }}>
