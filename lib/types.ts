@@ -5,6 +5,7 @@ export interface Post {
   content_type: 'wysiwyg' | 'markdown';
   tags: string[];
   published: boolean;
+  pinned: boolean;
   comments_enabled: boolean;
   pinned_until?: string | null;
   publish_at?: string | null;
