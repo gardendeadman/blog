@@ -3,8 +3,6 @@ import './globals.css';
 import ClientProviders from '@/components/ClientProviders';
 import { getBlogSettings } from '@/lib/blogSettings';
 
-export const dynamic = 'force-dynamic';
-
 export async function generateMetadata(): Promise<Metadata> {
   const { blogName, profileImage } = await getBlogSettings();
 

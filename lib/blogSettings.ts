@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { cache } from 'react';
 
 export const DEFAULT_BLOG_NAME = 'Blog';
 export const DEFAULT_ACCENT = '#d4622a';
@@ -13,7 +14,8 @@ export interface BlogSettings {
   guestbookEnabled: boolean;
 }
 
-export async function getBlogSettings(): Promise<BlogSettings> {
+// React cache — 같은 요청 내에서 중복 DB 조회 방지
+export const getBlogSettings = cache(async (): Promise<BlogSettings> => {
   try {
     const supabase = createClient();
     const { data } = await supabase
@@ -37,7 +39,7 @@ export async function getBlogSettings(): Promise<BlogSettings> {
       guestbookEnabled: false,
     };
   }
-}
+});
 
 export async function getBlogName(): Promise<string> {
   return (await getBlogSettings()).blogName;

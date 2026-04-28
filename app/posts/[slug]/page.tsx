@@ -10,7 +10,7 @@ import PostActions from '@/components/PostActions';
 import { getBlogSettings } from '@/lib/blogSettings';
 import { extractFirstImage } from '@/lib/extractFirstImage';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 10; // 10초 캐시
 
 export default async function PostPage({ params }: { params: { slug: string } }) {
   const supabase = createClient();

@@ -5,7 +5,7 @@ import PostCard from '@/components/PostCard';
 import { Post } from '@/lib/types';
 import { getBlogSettings } from '@/lib/blogSettings';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 30; // 30초 캐시
 
 export default async function Home({
   searchParams,

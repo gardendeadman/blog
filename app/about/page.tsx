@@ -4,18 +4,18 @@ import { getBlogSettings } from '@/lib/blogSettings';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60; // 60초 캐시
 
 export default async function AboutPage() {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = !!user;
-  const { blogName, bio, profileImage } = await getBlogSettings();
+  const { blogName, bio, profileImage, guestbookEnabled } = await getBlogSettings();
   const hasBio = !!bio?.trim();
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
-      <GNB isLoggedIn={isLoggedIn} blogName={blogName} hasBio={hasBio} />
+      <GNB isLoggedIn={isLoggedIn} blogName={blogName} hasBio={hasBio} guestbookEnabled={guestbookEnabled} />
       <main className="max-w-2xl mx-auto px-6 mobile-px" style={{ paddingTop: "calc(64px + 4rem)", paddingBottom: "4rem" }}>
         <div style={{
           background: 'var(--bg-card)',
