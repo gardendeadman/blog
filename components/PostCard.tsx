@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { formatKST } from '@/lib/formatDate';
-import { Clock, RefreshCw, Pencil, Trash2, Share2, Check } from 'lucide-react';
+import { Clock, RefreshCw, Pencil, Trash2, Share2, Check, Pin, EyeOff, MessageCircle } from 'lucide-react';
 import { Post } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -113,6 +113,34 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
 
             {/* Content */}
             <div style={{ flex: 1, minWidth: 0 }}>
+              {/* Status badges */}
+              {(post.pinned || (!post.published && isOwner)) && (
+                <div style={{ display: 'flex', gap: '6px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                  {post.pinned && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.7rem', fontWeight: 700, color: '#7c3aed', background: '#f5f3ff', padding: '2px 8px', borderRadius: '20px', letterSpacing: '0.02em' }}>
+                      <Pin size={9} />
+                      {post.pinned_until
+                        ? `Pinned until ${new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(post.pinned_until))}`
+                        : 'Pinned'}
+                    </span>
+                  )}
+                  {!post.published && isOwner && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.7rem', fontWeight: 700, color: '#d97706', background: '#fef3c7', padding: '2px 8px', borderRadius: '20px', letterSpacing: '0.02em' }}>
+                      <EyeOff size={9} />
+                      {post.publish_at
+                        ? `Publishes ${new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(post.publish_at))}`
+                        : 'Private'}
+                    </span>
+                  )}
+                  {post.published && isOwner && post.unpublish_at && (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.7rem', fontWeight: 700, color: '#d97706', background: '#fef3c7', padding: '2px 8px', borderRadius: '20px', letterSpacing: '0.02em' }}>
+                      <EyeOff size={9} />
+                      {`Hides ${new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(post.unpublish_at))}`}
+                    </span>
+                  )}
+                </div>
+              )}
+
               {/* Tags */}
               {post.tags && post.tags.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
@@ -141,6 +169,11 @@ export default function PostCard({ post, isOwner, index }: PostCardProps) {
 
               {/* Meta */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                {!post.comments_enabled && isOwner && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                    <MessageCircle size={11} /> Comments Off
+                  </span>
+                )}
                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                   <Clock size={11} />
                   {formatKST(post.created_at)}

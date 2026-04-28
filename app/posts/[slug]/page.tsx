@@ -5,6 +5,7 @@ import { Clock, RefreshCw, ArrowLeft, Pencil, Paperclip, FileText, FileImage, Fi
 import Link from 'next/link';
 import GNB from '@/components/GNB';
 import PostContent from '@/components/PostContent';
+import CommentsSection from '@/components/CommentsSection';
 import PostActions from '@/components/PostActions';
 import { getBlogSettings } from '@/lib/blogSettings';
 import { extractFirstImage } from '@/lib/extractFirstImage';
@@ -15,7 +16,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = !!user;
-  const { blogName, bio } = await getBlogSettings();
+  const { blogName, bio, guestbookEnabled } = await getBlogSettings();
   const hasBio = !!bio?.trim();
 
   const rawSlug = decodeURIComponent(params.slug);
@@ -27,6 +28,14 @@ export default async function PostPage({ params }: { params: { slug: string } })
     .single();
 
   if (!post) notFound();
+
+  // 댓글 목록 조회
+  const { data: comments } = await supabase
+    .from('comments')
+    .select('id, name, content, created_at')
+    .eq('post_id', post.id)
+    .order('created_at', { ascending: true })
+    .limit(500);
   if (!post.published && !isLoggedIn) notFound();
 
   // thumbnail이 없으면 content에서 추출해서 저장 (기존 포스트 소급 처리)
@@ -47,7 +56,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
-      <GNB isLoggedIn={isLoggedIn} blogName={blogName} hasBio={hasBio} />
+      <GNB isLoggedIn={isLoggedIn} blogName={blogName} hasBio={hasBio} guestbookEnabled={guestbookEnabled} />
 
       <main className="max-w-3xl mx-auto px-6 mobile-px" style={{ paddingTop: "calc(64px + 2.5rem)", paddingBottom: "2.5rem" }}>
         <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: 'var(--text-muted)', textDecoration: 'none', marginBottom: '32px', transition: 'color 0.15s ease' }} className="hover:text-accent">
@@ -124,7 +133,15 @@ export default async function PostPage({ params }: { params: { slug: string } })
           );
         })()}
 
-        <div style={{ marginTop: '60px', paddingTop: '32px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
+        {/* Comments */}
+        <CommentsSection
+          postId={post.id}
+          initialComments={comments || []}
+          isAdmin={isOwner}
+          commentsEnabled={post.comments_enabled ?? true}
+        />
+
+        <div style={{ marginTop: '40px', paddingTop: '32px', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
           <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', color: 'var(--text-secondary)', textDecoration: 'none', padding: '10px 20px', border: '1px solid var(--border)', borderRadius: '8px', transition: 'all 0.15s ease' }} className="hover:text-accent hover:border-accent">
             <ArrowLeft size={14} /> More posts
           </Link>

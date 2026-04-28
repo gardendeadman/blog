@@ -11,9 +11,10 @@ interface GNBProps {
   isLoggedIn: boolean;
   blogName?: string;
   hasBio?: boolean;
+  guestbookEnabled?: boolean;
 }
 
-export default function GNB({ isLoggedIn, blogName = 'Blog', hasBio = false }: GNBProps) {
+export default function GNB({ isLoggedIn, blogName = 'Blog', hasBio = false, guestbookEnabled = false }: GNBProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -94,6 +95,7 @@ export default function GNB({ isLoggedIn, blogName = 'Blog', hasBio = false }: G
             <MobileLink href="/" onClick={() => setMenuOpen(false)}>Home</MobileLink>
             <MobileLink href="/tags" onClick={() => setMenuOpen(false)}>Tags</MobileLink>
             {hasBio && <MobileLink href="/about" onClick={() => setMenuOpen(false)}>About</MobileLink>}
+            {guestbookEnabled && <MobileLink href="/guestbook" onClick={() => setMenuOpen(false)}>Guestbook</MobileLink>}
             {isLoggedIn && (
               <>
                 <MobileLink href="/settings" onClick={() => setMenuOpen(false)}>Settings</MobileLink>

@@ -75,7 +75,7 @@ export default function SettingsPage() {
 
       const { data } = await supabase
         .from('blog_settings')
-        .select('blog_name, accent_color, bio, profile_image')
+        .select('blog_name, accent_color, bio, profile_image, guestbook_enabled')
         .eq('user_id', user.id)
         .single();
 
@@ -83,6 +83,7 @@ export default function SettingsPage() {
       const color = data?.accent_color || '#d4622a';
       const bioVal = data?.bio || '';
       const profileVal = data?.profile_image || '';
+      setGuestbookEnabled(data?.guestbook_enabled ?? false);
       setBlogName(name);
       setBlogNameInput(name);
       setAccentColor(color);
@@ -101,7 +102,7 @@ export default function SettingsPage() {
   };
 
   // ── 공통 upsert helper ─────────────────────────────────
-  const upsertSettings = async (patch: Record<string, string>) => {
+  const upsertSettings = async (patch: Record<string, string | boolean>) => {
     const { data: existing } = await supabase
       .from('blog_settings').select('id').eq('user_id', user.id).single();
     if (existing) {
@@ -121,14 +122,13 @@ export default function SettingsPage() {
     const reader = new FileReader();
     reader.onload = async (ev) => {
       const dataUrl = ev.target?.result as string;
-      // 256×256 으로 리사이즈
+      // 256×256 정사각형 크롭 후 base64로 DB 저장
       const img = new window.Image();
       img.onload = async () => {
         const size = 256;
         const canvas = document.createElement('canvas');
         canvas.width = size; canvas.height = size;
         const ctx = canvas.getContext('2d')!;
-        // 정사각형 크롭 후 리사이즈
         const min = Math.min(img.width, img.height);
         const sx = (img.width - min) / 2;
         const sy = (img.height - min) / 2;
@@ -478,6 +478,42 @@ export default function SettingsPage() {
               {savingBio ? <Loader2 size={14} /> : <Save size={14} />}
               {savingBio ? 'Saving...' : 'Save'}
             </button>
+          </div>
+        </div>
+
+        {/* Guestbook toggle */}
+        <div style={card}>
+          <h2 style={sectionTitle}>💬 Guestbook</h2>
+          <p style={sectionDesc}>
+            Enable the guestbook to let visitors leave messages. A link will appear in the navigation.
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              onClick={() => handleToggleGuestbook(!guestbookEnabled)}
+              disabled={savingGuestbook}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                padding: '8px 18px', borderRadius: '8px', border: 'none',
+                background: guestbookEnabled ? 'var(--accent)' : 'var(--bg-secondary)',
+                color: guestbookEnabled ? 'white' : 'var(--text-secondary)',
+                fontSize: '0.875rem', fontWeight: 600, cursor: savingGuestbook ? 'not-allowed' : 'pointer',
+                fontFamily: 'var(--font-pretendard)', transition: 'all 0.2s ease',
+                opacity: savingGuestbook ? 0.6 : 1,
+              }}
+            >
+              {savingGuestbook ? <Loader2 size={14} /> : null}
+              {guestbookEnabled ? '✓ Enabled' : 'Disabled'}
+            </button>
+            {guestbookEnabled && (
+              <a
+                href="/guestbook"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '0.8rem', color: 'var(--accent)', textDecoration: 'none' }}
+              >
+                View guestbook →
+              </a>
+            )}
           </div>
         </div>
 

@@ -8,7 +8,9 @@ import StarterKit from '@tiptap/starter-kit';
 import { Image as TiptapImage } from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
-import { useRef, useCallback, useEffect, useState } from 'react';
+import { useRef, useCallback, useState } from 'react';
+import { uploadFile } from '@/lib/storage';
+import { createClient } from '@/lib/supabase/client';
 import {
   Bold, Italic, Strikethrough, Code, Heading1, Heading2, Heading3,
   List, ListOrdered, Quote, Minus, Link as LinkIcon,
@@ -223,14 +225,25 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
     </button>
   );
 
-  const handleImageFile = (file: File) => {
+  const handleImageFile = async (file: File) => {
     if (!file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      const src = e.target?.result as string;
-      if (src) editor.chain().focus().setImage({ src }).run();
-    };
-    reader.readAsDataURL(file);
+    try {
+      const sb = createClient();
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
+      const ext = file.name.split('.').pop() || 'jpg';
+      const path = `${user.id}/${Date.now()}.${ext}`;
+      const url = await uploadFile('blog-media', path, file);
+      editor.chain().focus().setImage({ src: url }).run();
+    } catch (e) {
+      // fallback: base64
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const src = ev.target?.result as string;
+        if (src) editor.chain().focus().setImage({ src }).run();
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

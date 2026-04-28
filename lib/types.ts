@@ -5,6 +5,10 @@ export interface Post {
   content_type: 'wysiwyg' | 'markdown';
   tags: string[];
   published: boolean;
+  comments_enabled: boolean;
+  pinned_until?: string | null;
+  publish_at?: string | null;
+  unpublish_at?: string | null;
   created_at: string;
   updated_at: string;
   user_id: string;
