@@ -36,7 +36,8 @@ export default async function Home({
   let mainQuery = supabase
     .from('posts')
     .select('id, title, slug, excerpt, tags, published, pinned, pinned_until, publish_at, unpublish_at, comments_enabled, created_at, updated_at, user_id, content_type, thumbnail, attachments, content')
-    .order('created_at', { ascending: false });
+    .order('pinned', { ascending: false })   // 고정글 최상단
+    .order('created_at', { ascending: false }); // 같은 그룹 내 날짜 내림차순
   if (!isLoggedIn) mainQuery = mainQuery.eq('published', true);
   if (selectedTag) mainQuery = mainQuery.contains('tags', [selectedTag]);
   const { data: posts } = await mainQuery;
